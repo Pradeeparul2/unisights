@@ -37,7 +37,7 @@ class MockTracker {
   tick = mockTracker.tick;
 }
 
-vi.mock("@pradeeparul/unisights-core", () => ({
+vi.mock("@pradeeparul2/unisights-core", () => ({
   default: vi.fn().mockResolvedValue(undefined),
   Tracker: MockTracker,
 }));

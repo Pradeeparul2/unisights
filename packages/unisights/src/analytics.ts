@@ -1,4 +1,4 @@
-import * as wasm from "@pradeeparul/unisights-core";
+import * as wasm from "@pradeeparul2/unisights-core";
 import {
   onCLS,
   onINP,

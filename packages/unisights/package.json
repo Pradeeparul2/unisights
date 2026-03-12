@@ -1,5 +1,5 @@
 {
-  "name": "@pradeeparul/unisights",
+  "name": "@pradeeparul2/unisights",
   "version": "0.0.1-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -23,7 +23,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@pradeeparul/unisights-core": "workspace:*",
+    "@pradeeparul2/unisights-core": "workspace:*",
     "web-vitals": "^5.1.0"
   },
   "files": [

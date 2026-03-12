@@ -1,6 +1,6 @@
 {
-  "name": "@pradeeparul/unisights-core",
-  "version": "0.0.1-beta.1",
+  "name": "@pradeeparul2/unisights-core",
+  "version": "0.0.1-beta.2",
   "description": "WebAssembly analytics core — event tracking, session management, web vitals, and rolling key encryption",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,7 @@
     }
   },
   "files": [
-    "pkg",
+    "pkg/unisights_*",
     "README.md",
     "LICENSE"
   ],
@@ -37,7 +37,6 @@
     "build:node": "wasm-pack build --target nodejs",
     "dev": "cargo watch -s 'wasm-pack build --target bundler'",
     "clean": "rm -rf pkg target",
-    "prepublishOnly": "npm run build",
     "test": "wasm-pack test --headless --chrome",
     "test:firefox": "wasm-pack test --headless --firefox",
     "test:node": "wasm-pack test --node",

@@ -1,5 +1,5 @@
-import initWasm, * as wasm from "@pradeeparul/unisights-core";
-import wasmBinary from "@pradeeparul/unisights-core/wasm";
+import initWasm, * as wasm from "@pradeeparul2/unisights-core";
+import wasmBinary from "@pradeeparul2/unisights-core/wasm";
 import type { UnisightsConfig } from "./types";
 import { FILE_DOWNLOAD_EXTENSIONS } from "./constants";
 import { getOrCreateSession, touchSession } from "./session";
