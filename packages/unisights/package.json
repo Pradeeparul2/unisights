@@ -1,6 +1,6 @@
 {
   "name": "@pradeeparul2/unisights",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -44,5 +44,27 @@
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0",
     "vitest": "^4.0.18"
-  }
+  },
+  "keywords": [
+    "analytics",
+    "tracking",
+    "web-analytics",
+    "wasm",
+    "webassembly",
+    "rust",
+    "web-vitals",
+    "page-view",
+    "click-tracking",
+    "scroll-tracking",
+    "session-tracking",
+    "utm",
+    "spa",
+    "real-time",
+    "privacy",
+    "encryption",
+    "gdpr",
+    "browser",
+    "cdn",
+    "event-tracking"
+  ]
 }

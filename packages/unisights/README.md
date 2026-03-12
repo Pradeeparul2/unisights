@@ -64,21 +64,21 @@ size for richer data collection and client-side security guarantees.
 
 ```bash
 # npm
-npm install @pradeeparul/unisights
+npm install @pradeeparul2/unisights
 
 # pnpm
-pnpm add @pradeeparul/unisights
+pnpm add @pradeeparul2/unisights
 
 # yarn
-yarn add @pradeeparul/unisights
+yarn add @pradeeparul2/unisights
 ```
 
 ### Packages
 
-| Package                       | Description                                   |
-| ----------------------------- | --------------------------------------------- |
-| `@pradeeparul/unisights`      | Main analytics library                        |
-| `@pradeeparul/unisights-core` | Rust/WASM core (auto-installed as dependency) |
+| Package                        | Description                                   |
+| ------------------------------ | --------------------------------------------- |
+| `@pradeeparul2/unisights`      | Main analytics library                        |
+| `@pradeeparul2/unisights-core` | Rust/WASM core (auto-installed as dependency) |
 
 ---
 
@@ -90,9 +90,8 @@ The simplest way — no build tools required. Drop this into your HTML `<head>`:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/@pradeeparul/unisights/dist/index.global.js"
+  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
   data-insights-id="YOUR_INSIGHTS_ID"
-  data-analytics-config='{"trackPageViews": true, "trackClicks": true}'
   async
 ></script>
 ```
@@ -101,9 +100,8 @@ With encryption enabled:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/@pradeeparul/unisights/dist/index.global.js"
+  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
   data-insights-id="YOUR_INSIGHTS_ID"
-  data-analytics-config='{"encrypt": true, "endpoint": "https://your-api.com/events"}'
   async
 ></script>
 ```
@@ -124,7 +122,7 @@ Pre-init queue — safe to call before the script loads:
 ### npm (ESM)
 
 ```ts
-import { init } from "@pradeeparul/unisights";
+import { init } from "@pradeeparul2/unisights";
 
 await init({
   endpoint: "https://your-api.com/events",
@@ -142,7 +140,7 @@ await init({
 
 ```tsx
 // analytics.ts
-import { init } from "@pradeeparul/unisights";
+import { init } from "@pradeeparul2/unisights";
 
 let initialized = false;
 
@@ -184,7 +182,7 @@ Unisights handles SPA navigation automatically via `pushState`/`popstate` interc
 "use client";
 
 import { useEffect } from "react";
-import { init } from "@pradeeparul/unisights";
+import { init } from "@pradeeparul2/unisights";
 
 export default function RootLayout({
   children,
@@ -309,10 +307,9 @@ logFormSubmit("form_submit", { formId: "contact" });
 
 ### Script Tag Attributes
 
-| Attribute               | Required | Description                             |
-| ----------------------- | -------- | --------------------------------------- |
-| `data-insights-id`      | ✅       | Your unique project identifier          |
-| `data-analytics-config` | ❌       | JSON config object (overrides defaults) |
+| Attribute          | Required | Description                    |
+| ------------------ | -------- | ------------------------------ |
+| `data-insights-id` | ✅       | Your unique project identifier |
 
 ---
 

@@ -326,31 +326,45 @@ export function setupTabFocusTracking(
 export function setupNetworkErrorTracking(
   tracker: wasm.Tracker,
   config: UnisightsConfig,
-): void {
-  if (!("PerformanceObserver" in window)) return;
+): () => void {
+  if (!("PerformanceObserver" in window)) return () => {};
+
+  const origin = window.location.origin;
+
+  function sanitizeUrl(raw: string): string {
+    try {
+      const u = new URL(raw);
+      return `${u.origin}${u.pathname}`;
+    } catch {
+      return "unknown";
+    }
+  }
 
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       const r = entry as PerformanceResourceTiming;
-      // transferSize = 0 and duration > 0 usually means a network error
-      if (
-        r.transferSize === 0 &&
-        r.duration > 0 &&
-        r.initiatorType === "fetch"
-      ) {
-        tracker.logCustomEvent(
-          "network_error",
-          JSON.stringify({
-            url: r.name,
-            duration: Math.round(r.duration),
-          }),
-        );
-        config.debug && console.log("[Insights] Network error:", r.name);
-      }
+
+      // Skip cross-origin, non-fetch, and cached responses
+      if (!r.name.startsWith(origin)) continue;
+      if (r.initiatorType !== "fetch") continue;
+      if (r.decodedBodySize > 0) continue; // cached — not a failure
+      if (r.transferSize !== 0 || r.duration <= 0) continue;
+
+      tracker.logCustomEvent(
+        "network_error",
+        JSON.stringify({
+          url: sanitizeUrl(r.name),
+          duration: Math.round(r.duration),
+        }),
+      );
+
+      if (config.debug) console.log("[Insights] Network error:", r.name);
     }
   });
 
-  observer.observe({ type: "resource", buffered: true });
+  observer.observe({ type: "resource", buffered: false });
+
+  return () => observer.disconnect();
 }
 
 // ─── Long tasks ───────────────────────────────────────────────────────────────

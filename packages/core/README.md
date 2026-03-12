@@ -5,7 +5,7 @@ Rust-powered WebAssembly core for the Unisights analytics engine. Provides a hig
 [![npm version](https://img.shields.io/npm/v/@pradeeparul/unisights-core)](https://www.npmjs.com/package/@pradeeparul/unisights-core)
 [![license](https://img.shields.io/npm/l/@pradeeparul/unisights-core)](./LICENSE)
 
-> **Note:** This package is the low-level WASM core. Most users should use [`@pradeeparul/unisights`](https://www.npmjs.com/package/@pradeeparul/unisights) instead, which wraps this package with a browser-friendly API and handles WASM initialization automatically.
+> **Note:** This package is the low-level WASM core. Most users should use [`@pradeeparul2/unisights`](https://www.npmjs.com/package/@pradeeparul/unisights) instead, which wraps this package with a browser-friendly API and handles WASM initialization automatically.
 
 ---
 
@@ -23,13 +23,13 @@ Rust-powered WebAssembly core for the Unisights analytics engine. Provides a hig
 
 ```bash
 # npm
-npm install @pradeeparul/unisights-core
+npm install @pradeeparul2/unisights-core
 
 # pnpm
-pnpm add @pradeeparul/unisights-core
+pnpm add @pradeeparul2/unisights-core
 
 # yarn
-yarn add @pradeeparul/unisights-core
+yarn add @pradeeparul2/unisights-core
 ```
 
 ---
@@ -39,7 +39,7 @@ yarn add @pradeeparul/unisights-core
 The WASM binary must be initialized before using any exports. Always `await init()` first.
 
 ```ts
-import init, { Tracker } from "@pradeeparul/unisights-core";
+import init, { Tracker } from "@pradeeparul2/unisights-core";
 
 // 1. Initialize the WASM binary
 await init();
