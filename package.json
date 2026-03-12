@@ -1,0 +1,16 @@
+{
+  "name": "unisights",
+  "private": true,
+  "version": "0.0.1-beta.1",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm --filter @pradeeparul/unisights-core build:web && pnpm --filter @pradeeparul/unisights build"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

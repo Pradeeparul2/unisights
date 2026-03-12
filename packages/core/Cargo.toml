@@ -1,0 +1,39 @@
+[package]
+name = "unisights_core"
+version = "0.0.1"
+edition = "2021"
+description = "WebAssembly analytics core — event tracking, session management, web vitals, and rolling key encryption"
+repository = "https://github.com/pradeeparul/unisights"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen       = "0.2.100"
+js-sys             = "0.3"
+serde              = { version = "1.0", features = ["derive"] }
+serde_json         = "1.0"
+serde-wasm-bindgen = "0.6"
+base64             = "0.22"
+hmac               = { version = "0.12", features = ["std"] }
+sha2               = "0.10"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = [
+  "-Oz",
+  "--strip-debug",
+  "--strip-producers",
+  "--enable-bulk-memory",
+  "--enable-nontrapping-float-to-int"
+]
+
+[profile.release]
+opt-level     = "z"
+lto           = "fat"
+codegen-units = 1
+panic         = "abort"
+strip         = "symbols"

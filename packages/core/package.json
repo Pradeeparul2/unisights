@@ -1,0 +1,46 @@
+{
+  "name": "@pradeeparul/unisights-core",
+  "version": "0.0.1",
+  "description": "WebAssembly analytics core — event tracking, session management, web vitals, and rolling key encryption",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pradeeparul/unisights"
+  },
+  "keywords": [
+    "analytics",
+    "wasm",
+    "webassembly",
+    "tracking",
+    "web-vitals"
+  ],
+  "main": "./pkg/unisights_core.js",
+  "types": "./pkg/unisights_core.d.ts",
+  "exports": {
+    ".": {
+      "import": "./pkg/unisights_core.js",
+      "types": "./pkg/unisights_core.d.ts"
+    },
+    "./wasm": {
+      "import": "./pkg/unisights_core_bg.wasm",
+      "types": "./pkg/unisights_core_bg.wasm.d.ts"
+    }
+  },
+  "files": [
+    "pkg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target bundler",
+    "build:web": "wasm-pack build --target web",
+    "build:node": "wasm-pack build --target nodejs",
+    "dev": "cargo watch -s 'wasm-pack build --target bundler'",
+    "clean": "rm -rf pkg target",
+    "prepublishOnly": "npm run build",
+    "test": "wasm-pack test --headless --chrome",
+    "test:firefox": "wasm-pack test --headless --firefox",
+    "test:node": "wasm-pack test --node",
+    "test:all": "npm test && npm run test:firefox"
+  }
+}
