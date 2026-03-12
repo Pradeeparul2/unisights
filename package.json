@@ -2,11 +2,28 @@
   "name": "unisights",
   "private": true,
   "version": "0.0.1-beta.1",
+  "packageManager": "pnpm@9.15.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pradeeparul2/unisights"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm --filter @pradeeparul/unisights-core build:web && pnpm --filter @pradeeparul/unisights build"
+    "preinstall": "npx only-allow pnpm",
+    "build": "pnpm --filter @pradeeparul/unisights-core build:web && pnpm --filter @pradeeparul/unisights build",
+    "build:core": "pnpm --filter @pradeeparul/unisights-core build:web",
+    "build:sdk": "pnpm --filter @pradeeparul/unisights build",
+    "test": "pnpm --filter @pradeeparul/unisights-core test && pnpm --filter @pradeeparul/unisights test",
+    "test:core": "pnpm --filter @pradeeparul/unisights-core test",
+    "test:sdk": "pnpm --filter @pradeeparul/unisights test",
+    "clean": "pnpm --filter @pradeeparul/unisights-core clean && pnpm --filter @pradeeparul/unisights clean",
+    "typecheck": "pnpm --filter @pradeeparul/unisights typecheck"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
