@@ -1,6 +1,7 @@
 {
   "name": "@pradeeparul2/unisights",
   "version": "0.0.1-beta.2",
+  "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

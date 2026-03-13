@@ -45,10 +45,10 @@ unisights/
 
 ### Packages
 
-| Package                                          | Description                                                                 | Docs                                       |
-| ------------------------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------ |
-| [`@pradeeparul/unisights`](./packages/unisights) | Browser SDK — auto-tracking, public API, script tag support                 | [README →](./packages/unisights/README.md) |
-| [`@pradeeparul/unisights-core`](./packages/core) | Rust/WASM core — event tracking, session management, rolling key encryption | [README →](./packages/core/README.md)      |
+| Package                                           | Description                                                                 | Docs                                       |
+| ------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@pradeeparul2/unisights`](./packages/unisights) | library — auto-tracking, public API, script tag support                     | [README →](./packages/unisights/README.md) |
+| [`@pradeeparul2/unisights-core`](./packages/core) | Rust/WASM core — event tracking, session management, rolling key encryption | [README →](./packages/core/README.md)      |
 
 ---
 
@@ -103,23 +103,28 @@ Drop this into your HTML `<head>` — no build tools required:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/@pradeeparul/unisights/dist/index.global.js"
+  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
   data-insights-id="YOUR_INSIGHTS_ID"
-  data-analytics-config='{"trackPageViews": true, "trackClicks": true}'
   async
 ></script>
+
+<script>
+  window.unisights.init({
+    endpoint: "https://your-api.com/events",
+  });
+</script>
 ```
 
 ### npm / pnpm / yarn
 
 ```bash
-npm install @pradeeparul/unisights
-pnpm add @pradeeparul/unisights
-yarn add @pradeeparul/unisights
+npm install @pradeeparul2/unisights
+pnpm add @pradeeparul2/unisights
+yarn add @pradeeparul2/unisights
 ```
 
 ```ts
-import { init } from "@pradeeparul/unisights";
+import { init } from "@pradeeparul2/unisights";
 
 await init({
   endpoint: "https://your-api.com/events",
@@ -186,8 +191,8 @@ See [`packages/core/README.md`](./packages/core/README.md) for server-side decry
 ### Setup
 
 ```bash
-git clone https://github.com/pradeeparul/unisights-lib.git
-cd unisights-lib
+git clone https://github.com/Pradeeparul2/unisights.git
+cd unisights
 pnpm install
 ```
 
@@ -198,7 +203,7 @@ pnpm install
 pnpm -r build
 
 # Build packages individually
-cd packages/core    && wasm-pack build --target bundler --release
+cd packages/core    && wasm-pack build --target web --release
 cd packages/unisights && pnpm build
 ```
 
@@ -207,7 +212,7 @@ cd packages/unisights && pnpm build
 ```bash
 # Rust core (129 tests, requires ChromeDriver)
 cd packages/core
-wasm-pack test --headless --chrome
+wasm-pack test --chrome
 
 # TypeScript SDK
 cd packages/unisights
@@ -219,7 +224,7 @@ pnpm test
 Releases publish automatically to npm on push to `main`:
 
 1. Restores caches — Rust registry, build artifacts, wasm-pack binary, pnpm store
-2. Builds WASM with `wasm-pack build --target bundler --release`
+2. Builds WASM with `wasm-pack build --target web --release`
 3. Bundles JS with tsup — WASM binary inlined, no separate `.wasm` file needed
 4. Generates `.d.ts` declarations
 5. Publishes both packages to npm via `pnpm publish`

@@ -16,14 +16,14 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "pnpm --filter @pradeeparul/unisights-core build:web && pnpm --filter @pradeeparul/unisights build",
-    "build:core": "pnpm --filter @pradeeparul/unisights-core build:web",
-    "build:sdk": "pnpm --filter @pradeeparul/unisights build",
-    "test": "pnpm --filter @pradeeparul/unisights-core test && pnpm --filter @pradeeparul/unisights test",
-    "test:core": "pnpm --filter @pradeeparul/unisights-core test",
-    "test:sdk": "pnpm --filter @pradeeparul/unisights test",
-    "clean": "pnpm --filter @pradeeparul/unisights-core clean && pnpm --filter @pradeeparul/unisights clean",
-    "typecheck": "pnpm --filter @pradeeparul/unisights typecheck"
+    "build": "pnpm --filter @pradeeparul2/unisights-core build:web && pnpm --filter @pradeeparul2/unisights build",
+    "build:core": "pnpm --filter @pradeeparul2/unisights-core build:web",
+    "build:sdk": "pnpm --filter @pradeeparul2/unisights build",
+    "test": "pnpm --filter @pradeeparul2/unisights-core test && pnpm --filter @pradeeparul2/unisights test",
+    "test:core": "pnpm --filter @pradeeparul2/unisights-core test",
+    "test:sdk": "pnpm --filter @pradeeparul2/unisights test",
+    "clean": "pnpm --filter @pradeeparul2/unisights-core clean && pnpm --filter @pradeeparul2/unisights clean",
+    "typecheck": "pnpm --filter @pradeeparul2/unisights typecheck"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

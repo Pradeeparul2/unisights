@@ -1,5 +1,5 @@
 use wasm_bindgen_test::*;
-use unisights_core::encryption::{
+use crate::encryption::{
     decrypt, derive_bucket, derive_client_key, authenticate,
     xor_stream, DecryptError, EncryptionConfig,
 };

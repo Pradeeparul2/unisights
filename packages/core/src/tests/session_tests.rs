@@ -1,5 +1,5 @@
 use wasm_bindgen_test::*;
-use unisights_core::session::SessionContext;
+use crate::session::SessionContext;
 
 wasm_bindgen_test_configure!(run_in_browser);
 

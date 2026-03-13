@@ -1,5 +1,5 @@
 use wasm_bindgen_test::*;
-use unisights_core::event::{Event, EventQueue};
+use crate::event::{Event, EventQueue};
 
 wasm_bindgen_test_configure!(run_in_browser);
 

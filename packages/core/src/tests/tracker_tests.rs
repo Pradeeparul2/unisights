@@ -1,5 +1,5 @@
 use wasm_bindgen_test::*;
-use unisights_core::tracker::Tracker;
+use crate::tracker::Tracker;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
