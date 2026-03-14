@@ -1,6 +1,6 @@
 {
   "name": "@pradeeparul2/unisights-core",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.4",
   "description": "WebAssembly analytics core — event tracking, session management, web vitals, and rolling key encryption",
   "license": "MIT",
   "repository": {

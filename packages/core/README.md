@@ -2,10 +2,10 @@
 
 Rust-powered WebAssembly core for the Unisights analytics engine. Provides a high-performance `Tracker` with session management, event logging, scroll tracking, web vitals, and time-bucketed rolling key encryption — all compiled to WASM via [`wasm-pack`](https://rustwasm.github.io/wasm-pack/).
 
-[![npm version](https://img.shields.io/npm/v/@pradeeparul/unisights-core)](https://www.npmjs.com/package/@pradeeparul/unisights-core)
-[![license](https://img.shields.io/npm/l/@pradeeparul/unisights-core)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights-core)](https://www.npmjs.com/package/@pradeeparul2/unisights-core)
+[![license](https://img.shields.io/npm/l/@pradeeparul2/unisights-core)](./LICENSE)
 
-> **Note:** This package is the low-level WASM core. Most users should use [`@pradeeparul2/unisights`](https://www.npmjs.com/package/@pradeeparul/unisights) instead, which wraps this package with a browser-friendly API and handles WASM initialization automatically.
+> **Note:** This package is the low-level WASM core. Most users should use [`@pradeeparul2/unisights`](https://www.npmjs.com/package/@pradeeparul2/unisights) instead, which wraps this package with a browser-friendly API and handles WASM initialization automatically.
 
 ---
 

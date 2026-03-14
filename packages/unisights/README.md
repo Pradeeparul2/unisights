@@ -10,6 +10,9 @@ Unisights is an open-source analytics library built on **Rust + WebAssembly**. A
 
 You get full analytics coverage (page views, clicks, scroll, web vitals, errors, rage clicks, engagement time, and more) with a single script tag or npm install, and you own every byte of data that leaves the browser.
 
+[![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights)](https://www.npmjs.com/package/@pradeeparul2/unisights)
+[![license](https://img.shields.io/npm/l/@pradeeparul2/unisights)](./LICENSE)
+
 ---
 
 ## Core Idea
