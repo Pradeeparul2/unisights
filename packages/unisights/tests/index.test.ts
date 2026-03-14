@@ -13,6 +13,7 @@ const mockTracker = {
   exportEncryptedPayload: vi.fn(() => ({ events: [] })),
   clearEvents: vi.fn(),
   setEncryptionKey: vi.fn(),
+  setEncryptionConfig: vi.fn(),
   setSessionInfo: vi.fn(),
   tick: vi.fn(),
 };
@@ -33,6 +34,7 @@ class MockTracker {
   exportEncryptedPayload = mockTracker.exportEncryptedPayload;
   clearEvents = mockTracker.clearEvents;
   setEncryptionKey = mockTracker.setEncryptionKey;
+  setEncryptionConfig = mockTracker.setEncryptionConfig;
   setSessionInfo = mockTracker.setSessionInfo;
   tick = mockTracker.tick;
 }
@@ -104,12 +106,10 @@ vi.mock("web-vitals", () => ({
 
 const mockSendBeacon = vi.fn(() => true);
 
-function setupDOM(insightsId = "test-id", withSecret = false) {
+function setupDOM(insightsId = "test-id") {
   document.body.innerHTML = `
     <script
       data-insights-id="${insightsId}"
-      ${withSecret ? 'data-secret="mysecret" data-salt="mysalt"' : ""}
-      data-analytics-config='{}'
     ></script>
   `;
 }
@@ -230,29 +230,17 @@ describe("init()", () => {
     expect(trackerInstanceCount).toBe(0);
   });
 
-  it("throws if encryption is enabled but secret/salt are missing", async () => {
-    setupDOM("test-id", false);
-    const { init } = await importAnalytics();
-    await expect(
-      init({ endpoint: "https://api.example.com", encrypt: true }),
-    ).rejects.toThrow("Encryption requires secret and salt");
-  });
-
   it("sets encryption key when secret and salt are present", async () => {
     setupDOM("test-id", true);
     const { init } = await importAnalytics();
     await init({ endpoint: "https://api.example.com", encrypt: true });
-    expect(mockTracker.setEncryptionKey).toHaveBeenCalledWith(
-      "mysecret",
-      "mysalt",
-      true,
-    );
+    expect(mockTracker.setEncryptionConfig).toHaveBeenCalledWith(true);
   });
 
   it("disables encryption when encrypt is false", async () => {
     const { init } = await importAnalytics();
     await init({ endpoint: "https://api.example.com", encrypt: false });
-    expect(mockTracker.setEncryptionKey).toHaveBeenCalledWith("", "", false);
+    expect(mockTracker.setEncryptionConfig).toHaveBeenCalledWith(false);
   });
 });
 

@@ -8,7 +8,7 @@
     "url": "https://github.com/Pradeeparul2/unisights"
   },
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=9"
   },
   "workspaces": [
@@ -28,7 +28,8 @@
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "@types/node": "^20.19.37"
+    "vitest": "^4.1.0",
+    "@types/node": "^20.19.37",
+    "vite-plugin-wasm": "^3.5.0"
   }
 }

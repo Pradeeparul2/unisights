@@ -1,11 +1,20 @@
 import { defineConfig } from "vitest/config";
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
+import path from "path";
 
 export default defineConfig({
-  plugins: [wasm(), topLevelAwait()],
   test: {
     environment: "jsdom",
     globals: true,
+    alias: {
+      // intercept both imports
+      "@pradeeparul2/unisights-core/wasm": path.resolve(
+        __dirname,
+        "./tests/__mocks__/wasm-binary.ts",
+      ),
+      "@pradeeparul2/unisights-core": path.resolve(
+        __dirname,
+        "./tests/__mocks__/wasm.ts",
+      ),
+    },
   },
 });
