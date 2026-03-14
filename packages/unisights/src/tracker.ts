@@ -327,9 +327,8 @@ export function setupNetworkErrorTracking(
   tracker: wasm.Tracker,
   config: UnisightsConfig,
 ): () => void {
-  if (!("PerformanceObserver" in window)) return () => {};
-
   const origin = window.location.origin;
+  const originalFetch = window.fetch;
 
   function sanitizeUrl(raw: string): string {
     try {
@@ -340,31 +339,54 @@ export function setupNetworkErrorTracking(
     }
   }
 
-  const observer = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) {
-      const r = entry as PerformanceResourceTiming;
+  window.fetch = async function (...args): Promise<Response> {
+    const url =
+      typeof args[0] === "string"
+        ? args[0]
+        : args[0] instanceof Request
+          ? args[0].url
+          : String(args[0]);
 
-      // Skip cross-origin, non-fetch, and cached responses
-      if (!r.name.startsWith(origin)) continue;
-      if (r.initiatorType !== "fetch") continue;
-      if (r.decodedBodySize > 0) continue; // cached — not a failure
-      if (r.transferSize !== 0 || r.duration <= 0) continue;
+    // Only instrument same-origin requests
+    if (!url.startsWith(origin)) return originalFetch.apply(this, args);
 
+    const start = performance.now();
+
+    try {
+      const response = await originalFetch.apply(this, args);
+
+      if (!response.ok) {
+        tracker.logCustomEvent(
+          "network_error",
+          JSON.stringify({
+            url: sanitizeUrl(url),
+            status: response.status,
+            duration: Math.round(performance.now() - start),
+          }),
+        );
+        if (config.debug)
+          console.log("[Insights] Network error:", url, response.status);
+      }
+
+      return response;
+    } catch (err) {
       tracker.logCustomEvent(
         "network_error",
         JSON.stringify({
-          url: sanitizeUrl(r.name),
-          duration: Math.round(r.duration),
+          url: sanitizeUrl(url),
+          status: 0, // connection failure
+          duration: Math.round(performance.now() - start),
         }),
       );
-
-      if (config.debug) console.log("[Insights] Network error:", r.name);
+      if (config.debug) console.log("[Insights] Network failure:", url);
+      throw err;
     }
-  });
+  };
 
-  observer.observe({ type: "resource", buffered: false });
-
-  return () => observer.disconnect();
+  // Restore original on cleanup
+  return () => {
+    window.fetch = originalFetch;
+  };
 }
 
 // ─── Long tasks ───────────────────────────────────────────────────────────────
