@@ -1,0 +1,22 @@
+[project]
+name = "unisights"
+version = "0.0.1-beta.2"
+authors = [
+  { name="Pradeep Arul", email="pradeeparul2@gmail.com" },
+]
+description = "Unisights Python SDK provides a lightweight event collection endpoint for Python web frameworks."
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = []
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/Pradeeparul2/unisights"
+Issues = "https://github.com/Pradeeparul2/unisights/issues"
