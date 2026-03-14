@@ -54,11 +54,11 @@ unisights/
 
 ### Packages
 
-| Package                                                     | Description                                                                      | Docs                                            |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------- |
-| [`@pradeeparul2/unisights`](./packages/unisights)           | Browser library — auto-tracking, public API, script tag support                  | [README →](./packages/unisights/README.md)      |
-| [`@pradeeparul2/unisights-core`](./packages/core)           | Rust/WASM core — event tracking, session management, rolling key encryption      | [README →](./packages/core/README.md)           |
-| [`@pradeeparul2/unisights-node`](./packages/unisights-node) | Node.js server receiver — exposes a POST endpoint, receives payloads, always 200 | [README →](./packages/unisights-node/README.md) |
+| Package                                           | Description                                                                      | Docs                                       |
+| ------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@pradeeparul2/unisights`](./packages/unisights) | Browser library — auto-tracking, public API, script tag support                  | [README →](./packages/unisights/README.md) |
+| [`@pradeeparul2/unisights-core`](./packages/core) | Rust/WASM core — event tracking, session management, rolling key encryption      | [README →](./packages/core/README.md)      |
+| [`@pradeeparul2/unisights-node`](./packages/node) | Node.js server receiver — exposes a POST endpoint, receives payloads, always 200 | [README →](./packages/node/README.md)      |
 
 ---
 
@@ -189,7 +189,7 @@ collector.elysia(app);
 
 The endpoint **always returns 200** — the browser's `sendBeacon` call never blocks or retries.
 
-See [`packages/unisights-node/README.md`](./packages/unisights-node/README.md) for the full framework guide, payload types, and TypeScript usage.
+See [`packages/unisights-node/README.md`](./packages/node/README.md) for the full framework guide, payload types, and TypeScript usage.
 
 ---
 
@@ -324,7 +324,7 @@ Releases publish automatically to npm on push to `main`:
 4. Generates `.d.ts` declarations
 5. Publishes all three packages to npm via `pnpm publish`
 
-Bump versions in `packages/core/package.json`, `packages/unisights/package.json`, and `packages/unisights-node/package.json` before merging to trigger a release.
+Bump versions in `packages/core/package.json`, `packages/unisights/package.json`, and `packages/node/package.json` before merging to trigger a release.
 
 ---
 

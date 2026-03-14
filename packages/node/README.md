@@ -1,8 +1,11 @@
-# unisights-node
+# Unisights-node
 
 Server package for the **unisights** ecosystem.
 
 Creates a configurable endpoint that receives events captured by the **unisights**. Processing is optional. **Always returns 200** — the client never blocks on the server response.
+
+[![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights-node)](https://www.npmjs.com/package/@pradeeparul2/unisights-node)
+[![license](https://img.shields.io/npm/l/@pradeeparul2/unisights-node)](./LICENSE)
 
 ```
 unisights
