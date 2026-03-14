@@ -28,13 +28,22 @@ unisights/
 │   │   ├── Cargo.toml
 │   │   ├── Cargo.lock
 │   │   └── webdriver.json
-│   └── unisights/                   # TypeScript SDK
-│       ├── src/                     # TypeScript source
-│       ├── tests/                   # SDK tests
+│   ├── unisights/                   # TypeScript SDK
+│   │   ├── src/                     # TypeScript source
+│   │   ├── tests/                   # SDK tests
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── tsup.config.ts
+│   │   └── vitest.config.ts
+│   └── node/              # Node.js server receiver
+│       ├── src/
+│       │   ├── adapters/            # Express, Fastify, Koa, Hono, Elysia, Fetch
+│       │   ├── index.ts             # Main entry — unisights() factory
+│       │   ├── parseBody.ts         # Runtime-agnostic body parser
+│       │   └── types.ts             # Full payload types + UnisightsPayload
 │       ├── package.json
 │       ├── tsconfig.json
-│       ├── tsup.config.ts
-│       └── vitest.config.ts
+│       └── tsconfig.build.json
 ├── .gitignore
 ├── LICENSE
 ├── package.json                     # Workspace root
@@ -45,10 +54,11 @@ unisights/
 
 ### Packages
 
-| Package                                           | Description                                                                 | Docs                                       |
-| ------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------ |
-| [`@pradeeparul2/unisights`](./packages/unisights) | library — auto-tracking, public API, script tag support                     | [README →](./packages/unisights/README.md) |
-| [`@pradeeparul2/unisights-core`](./packages/core) | Rust/WASM core — event tracking, session management, rolling key encryption | [README →](./packages/core/README.md)      |
+| Package                                                     | Description                                                                      | Docs                                            |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`@pradeeparul2/unisights`](./packages/unisights)           | Browser library — auto-tracking, public API, script tag support                  | [README →](./packages/unisights/README.md)      |
+| [`@pradeeparul2/unisights-core`](./packages/core)           | Rust/WASM core — event tracking, session management, rolling key encryption      | [README →](./packages/core/README.md)           |
+| [`@pradeeparul2/unisights-node`](./packages/unisights-node) | Node.js server receiver — exposes a POST endpoint, receives payloads, always 200 | [README →](./packages/unisights-node/README.md) |
 
 ---
 
@@ -67,6 +77,8 @@ Browser → WASM core (your bundle) → Your endpoint → Your database
 ```
 
 The tracking logic — session handling, event buffering, encryption, payload serialization — runs in a Rust-compiled WASM module embedded in the JS bundle. There are no external fetches to analytics infrastructure. Your endpoint receives structured JSON payloads via `navigator.sendBeacon`, and you decide what to store, aggregate, and display.
+
+`unisights-node` is the server-side counterpart: a zero-dependency, framework-agnostic package that creates that endpoint for you.
 
 ---
 
@@ -89,6 +101,7 @@ The tracking logic — session handling, event buffering, encryption, payload se
 | Custom events               | ✅        | ✅        | ✅    | ✅           | ✅     |
 | No cookies                  | ✅        | ✅        | ✅    | ✅           | ✅     |
 | Self-hostable               | ✅        | ✅        | ✅    | ✅           | ✅     |
+| Server receiver package     | ✅        | ❌        | ❌    | ❌           | ❌     |
 | Bundle size (gzip)          | ~86KB     | ~1KB      | ~8KB  | ~3KB         | ~2KB   |
 
 **The tradeoff is honest** — Plausible and Umami are far smaller because they do far less in the browser. Unisights trades bundle size for richer data collection and client-side security guarantees.
@@ -97,7 +110,7 @@ The tracking logic — session handling, event buffering, encryption, payload se
 
 ## Quick Start
 
-### CDN
+### Browser — CDN
 
 Drop this into your HTML `<head>` — no build tools required:
 
@@ -110,24 +123,22 @@ Drop this into your HTML `<head>` — no build tools required:
 
 <script>
   window.unisights.init({
-    endpoint: "https://your-api.com/events",
+    endpoint: "https://your-api.com/collect",
   });
 </script>
 ```
 
-### npm / pnpm / yarn
+### Browser — npm / pnpm / yarn
 
 ```bash
 npm install @pradeeparul2/unisights
-pnpm add @pradeeparul2/unisights
-yarn add @pradeeparul2/unisights
 ```
 
 ```ts
 import { init } from "@pradeeparul2/unisights";
 
 await init({
-  endpoint: "https://your-api.com/events",
+  endpoint: "https://your-api.com/collect",
   trackPageViews: true,
   trackClicks: true,
   trackErrors: true,
@@ -136,7 +147,86 @@ await init({
 });
 ```
 
-See [`packages/unisights/README.md`](./packages/unisights/README.md) for full usage, React/Next.js integration, all config options, and payload format.
+### Server — receive events
+
+Install the server receiver in your backend:
+
+```bash
+npm install @pradeeparul2/unisights-node
+```
+
+Wire it up with one line — works on every Node.js framework and cloud edge runtime:
+
+```ts
+import { unisights } from "@pradeeparul2/unisights-node";
+
+const collector = unisights({
+  path: "/collect",
+  handler: async (payload) => {
+    // payload is fully typed as UnisightsPayload
+    await db.events.insert(payload.data);
+  },
+});
+
+// Express / NestJS
+app.use(collector);
+
+// Fastify
+fastify.register(collector.fastify);
+
+// Koa
+app.use(collector.koa);
+
+// Cloudflare Workers / Deno / Bun / Vercel Edge / Netlify Edge
+export default { fetch: collector.fetch };
+
+// Hono
+app.use("*", collector.hono);
+
+// Elysia (Bun)
+collector.elysia(app);
+```
+
+The endpoint **always returns 200** — the browser's `sendBeacon` call never blocks or retries.
+
+See [`packages/unisights-node/README.md`](./packages/unisights-node/README.md) for the full framework guide, payload types, and TypeScript usage.
+
+---
+
+## Payload Shape
+
+Every POST to your endpoint carries a structured `UnisightsPayload`:
+
+```ts
+interface UnisightsPayload {
+  data: {
+    asset_id: string; // your Unisights property ID
+    session_id: string; // UUID v4
+    page_url: string;
+    entry_page: string;
+    exit_page: string | null;
+    utm_params: UtmParams;
+    device_info: DeviceInfo;
+    scroll_depth: number; // 0–100
+    time_on_page: number; // seconds
+    events: UnisightsEvent[]; // discriminated union (see below)
+  };
+  encrypted: boolean;
+}
+```
+
+Events are a discriminated union — TypeScript narrows the `data` shape automatically per `type`:
+
+```ts
+type UnisightsEvent =
+  | { type: "page_view"; data: PageViewEventData }
+  | { type: "click"; data: ClickEventData }
+  | { type: "web_vital"; data: WebVitalEventData }
+  | { type: "custom"; data: CustomEventData }
+  | { type: "error"; data: ErrorEventData };
+```
+
+All types are exported from `@pradeeparul2/unisights-node`.
 
 ---
 
@@ -157,7 +247,7 @@ Enable it with a single flag:
 
 ```ts
 await init({
-  endpoint: "https://your-api.com/events",
+  endpoint: "https://your-api.com/collect",
   encrypt: true,
 });
 ```
@@ -203,8 +293,9 @@ pnpm install
 pnpm -r build
 
 # Build packages individually
-cd packages/core    && wasm-pack build --target web --release
-cd packages/unisights && pnpm build
+cd packages/core           && wasm-pack build --target web --release
+cd packages/unisights      && pnpm build
+cd packages/unisights-node && pnpm build
 ```
 
 ### Test
@@ -217,6 +308,10 @@ wasm-pack test --chrome
 # TypeScript SDK
 cd packages/unisights
 pnpm test
+
+# Node server receiver
+cd packages/unisights-node
+pnpm test
 ```
 
 ### CI / CD
@@ -227,9 +322,9 @@ Releases publish automatically to npm on push to `main`:
 2. Builds WASM with `wasm-pack build --target web --release`
 3. Bundles JS with tsup — WASM binary inlined, no separate `.wasm` file needed
 4. Generates `.d.ts` declarations
-5. Publishes both packages to npm via `pnpm publish`
+5. Publishes all three packages to npm via `pnpm publish`
 
-Bump versions in `packages/core/package.json` and `packages/unisights/package.json` before merging to trigger a release.
+Bump versions in `packages/core/package.json`, `packages/unisights/package.json`, and `packages/unisights-node/package.json` before merging to trigger a release.
 
 ---
 
