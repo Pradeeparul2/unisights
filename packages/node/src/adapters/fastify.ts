@@ -5,7 +5,7 @@
  * Usage: fastify.register(collector.fastify)
  */
 
-import type { UnisightsOptions } from "../types.js";
+import type { AdapterConfig } from "../types.js";
 import { parseBody } from "../parseBody.js";
 
 // Minimal Fastify interfaces we interact with
@@ -40,7 +40,7 @@ interface FastifyReply {
 }
 
 export function fastifyAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (fastify: FastifyInstance, opts: unknown) => Promise<void> {
   const { path, handler } = config;
 

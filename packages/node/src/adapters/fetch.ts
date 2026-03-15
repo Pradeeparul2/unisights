@@ -9,17 +9,17 @@
  * Usage: export default { fetch: collector.fetch }
  */
 
-import type { UnisightsOptions } from "../types.ts";
+import type { AdapterConfig } from "../types.js";
 
 const OK_RESPONSE = JSON.stringify({ ok: true });
 const JSON_HEADERS: HeadersInit = { "Content-Type": "application/json" };
 
 export function fetchAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (request: Request) => Promise<Response | null> {
   const { path, handler } = config;
 
-  return async function unisightsFetch(
+  return async function uniSightsFetch(
     request: Request,
   ): Promise<Response | null> {
     const url = new URL(request.url);

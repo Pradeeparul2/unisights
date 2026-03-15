@@ -1,14 +1,14 @@
 /**
- * unisights-node
+ * @pradeeparul2/unisights-node
  *
- * Creates a configurable endpoint that receives events from the unisites client SDK.
+ * Creates a configurable endpoint that receives events from the unisights client SDK.
  * Processing is optional. Always returns 200.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  *
- *   import { unisites } from 'unisights-node'
+ *   import { unisights } from '@pradeeparul2/unisights-node'
  *
- *   const collector = unisites({
+ *   const collector = unisights({
  *     path: '/collect',              // default: '/events'
  *     handler: async (payload) => {  // optional
  *       await db.insert(payload)
@@ -32,27 +32,88 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import type { UnisightsOptions, UnisightsCollector, Handler } from "./types.js";
-import { fetchAdapter } from "./adapters/fetch.js";
+import type {
+  UnisightsOptions,
+  UnisightsCollector,
+  AdapterConfig,
+  Handler,
+  UnisightsPayload,
+  UnisightsData,
+  UnisightsEvent,
+  DeviceInfo,
+  UtmParams,
+  PageViewEventData,
+  ClickEventData,
+  WebVitalEventData,
+  CustomEventData,
+  ErrorEventData,
+  EncryptedPayload,
+  RawPayload,
+  DecryptOptions,
+} from "./types.js";
 import { nodeAdapter } from "./adapters/node.js";
 import { fastifyAdapter } from "./adapters/fastify.js";
 import { koaAdapter } from "./adapters/koa.js";
+import { fetchAdapter } from "./adapters/fetch.js";
 import { honoAdapter } from "./adapters/hono.js";
 import { elysiaAdapter } from "./adapters/elysia.js";
+import { decrypt, isEncrypted } from "./decrypt.js";
+export { decrypt, isEncrypted, DecryptError } from "./decrypt.js";
 
-export type { UnisightsOptions, UnisightsCollector, Handler };
+export type {
+  UnisightsOptions,
+  UnisightsCollector,
+  Handler,
+  UnisightsPayload,
+  UnisightsData,
+  UnisightsEvent,
+  DeviceInfo,
+  UtmParams,
+  PageViewEventData,
+  ClickEventData,
+  WebVitalEventData,
+  CustomEventData,
+  ErrorEventData,
+  EncryptedPayload,
+  RawPayload,
+  DecryptOptions,
+};
 
 /**
- * Create a unisites event collection endpoint.
+ * Create a unisights event collection endpoint.
  *
  * @param options.path    - endpoint path (default: '/events')
  * @param options.handler - optional async (payload, req) => void
  *
+ * @example
+ * // No handler — just acknowledge every POST and return 200
+ * const collector = unisights({ path: '/collect' })
+ * app.use(collector)
+ *
+ * @example
+ * // Encryption is handled transparently — handler always receives UnisightsPayload
+ * const collector = unisights({
+ *   path: '/collect',
+ *   handler: async (payload) => {
+ *     // payload is UnisightsPayload whether or not the SDK sent it encrypted
+ *     await db.events.insert(payload.data)
+ *   }
+ * })
+ *
+ * @example
+ * // With optional server-side secret (only if SDK is configured with matching secret)
+ * const collector = unisights({
+ *   path: '/collect',
+ *   serverSecret: process.env.UNISIGHTS_SECRET,
+ *   handler: async (payload) => {
+ *     await db.events.insert(payload.data)
+ *   }
+ * })
  */
 export function unisights<TPayload = unknown>(
   options: UnisightsOptions<TPayload> = {},
 ): UnisightsCollector {
-  const { path = "/events", handler = null } = options;
+  const { path = "/events", handler = null, serverSecret } = options;
 
   // ── Validate ──────────────────────────────────────────────────────────────
 
@@ -66,9 +127,20 @@ export function unisights<TPayload = unknown>(
     throw new Error("[unisights] options.handler must be a function");
   }
 
-  const config: Required<UnisightsOptions<TPayload>> = {
+  // Wrap user handler with auto-decrypt — transparently decrypts encrypted
+  // payloads before calling the user's function. They always receive UnisightsPayload.
+  const wrappedHandler = handler
+    ? async (raw: unknown, req: unknown): Promise<void> => {
+        const payload = isEncrypted(raw)
+          ? await decrypt(raw, { serverSecret })
+          : raw;
+        await (handler as Handler<unknown>)(payload, req);
+      }
+    : null;
+
+  const config: AdapterConfig<TPayload> = {
     path,
-    handler: handler as Handler<TPayload>,
+    handler: wrappedHandler as Handler<TPayload>,
   };
 
   // ── Build adapters ────────────────────────────────────────────────────────

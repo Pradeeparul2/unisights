@@ -127,11 +127,30 @@ export interface UnisightsOptions<TPayload = UnisightsPayload> {
 
   /**
    * Optional handler called for each received payload.
+   * When the SDK sends an encrypted payload, unisights-node automatically
+   * decrypts it before calling this function — no manual decrypt() needed.
    * async (payload, req) => void
    */
   handler?: Handler<TPayload>;
+
+  /**
+   * Optional server-side secret for HMAC key wrapping.
+   * Only needed if the SDK was configured with the matching server secret.
+   * When provided: server_key = HMAC(serverSecret, client_key)
+   */
+  serverSecret?: string;
 }
 
+// ── Internal adapter config (used by adapters — serverSecret already consumed) ──
+
+/**
+ * What each adapter receives. serverSecret is handled in index.ts before
+ * this config is passed to adapters, so it is not included here.
+ */
+export interface AdapterConfig<TPayload = unknown> {
+  path: string;
+  handler: Handler<TPayload> | null;
+}
 // ── Collector (returned by unisights()) ───────────────────────────────────────
 
 /**
@@ -181,4 +200,42 @@ export interface UnisightsCollector {
 
   /** Configured handler, or null if not provided (read-only) */
   readonly handler: Handler | null;
+}
+
+// ── Encrypted payload shape ───────────────────────────────────────────────────
+
+/**
+ * Payload received when the unisights SDK has encryption enabled.
+ * Pass this to `decrypt()` to get back a `UnisightsPayload`.
+ */
+export interface EncryptedPayload {
+  /** Base64-encoded XOR ciphertext */
+  data: string;
+  /** Base64-encoded HMAC-SHA256 authentication tag */
+  tag: string;
+  /** Key rotation bucket — floor(timestamp_ms / 30_000) */
+  bucket: number;
+  /** Your Unisights asset/property ID */
+  site_id: string;
+  /** SHA256 hash of the user-agent string */
+  ua_hash: string;
+  /** Always true when encrypted */
+  encrypted: true;
+}
+
+/**
+ * The raw body received by the server — either plain or encrypted.
+ * Use `isEncrypted()` to narrow the type before processing.
+ */
+export type RawPayload = UnisightsPayload | EncryptedPayload;
+
+// ── Decryption options ────────────────────────────────────────────────────────
+
+export interface DecryptOptions {
+  /**
+   * Optional server-side secret for an extra HMAC wrapping layer.
+   * When provided: server_key = HMAC(SERVER_SECRET, client_key)
+   * Must match the secret used to configure the SDK if server-side wrapping is enabled.
+   */
+  serverSecret?: string;
 }

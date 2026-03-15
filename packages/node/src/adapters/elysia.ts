@@ -5,7 +5,7 @@
  * Usage: collector.elysia(app)
  */
 
-import type { UnisightsOptions } from "../types.js";
+import type { AdapterConfig } from "../types.js";
 
 // Minimal Elysia app interface we depend on
 interface ElysiaApp {
@@ -21,7 +21,7 @@ interface ElysiaContext {
 }
 
 export function elysiaAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (app: ElysiaApp) => ElysiaApp {
   const { path, handler } = config;
 

@@ -7,7 +7,7 @@
  * No `node:http` import — compatible with any moduleResolution (bundler, NodeNext, etc.)
  */
 
-import type { Handler, UnisightsOptions } from "../types.js";
+import type { AdapterConfig } from "../types.js";
 import { parseBody } from "../parseBody.js";
 
 // ── Local interface definitions (replaces node:http imports) ─────────────────
@@ -34,7 +34,7 @@ interface NodeRequest {
 // ── Adapter ───────────────────────────────────────────────────────────────────
 
 export function nodeAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (req: NodeRequest, res: NodeResponse, next?: () => void) => void {
   const { path, handler } = config;
 
@@ -59,7 +59,7 @@ export function nodeAdapter<TPayload>(
       try {
         const payload = (await parseBody(req)) as TPayload;
         if (handler) {
-          await (handler as Handler<TPayload, NodeRequest>)(payload, req);
+          await handler(payload as TPayload, req);
         }
       } catch {
         // Swallow — always 200

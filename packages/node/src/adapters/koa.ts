@@ -5,7 +5,7 @@
  * Usage: app.use(collector.koa)
  */
 
-import type { UnisightsOptions } from "../types.js";
+import type { AdapterConfig } from "../types.js";
 import { parseBody } from "../parseBody.js";
 
 // Minimal Koa context shape we depend on
@@ -21,7 +21,7 @@ interface KoaContext {
 }
 
 export function koaAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (ctx: KoaContext, next: () => Promise<void>) => Promise<void> {
   const { path, handler } = config;
 

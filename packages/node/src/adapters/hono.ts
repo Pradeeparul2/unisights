@@ -5,7 +5,7 @@
  * Usage: app.use('*', collector.hono)
  */
 
-import type { UnisightsOptions } from "../types.js";
+import type { AdapterConfig } from "../types.js";
 
 // Minimal Hono context shape we depend on
 interface HonoContext {
@@ -19,7 +19,7 @@ interface HonoContext {
 }
 
 export function honoAdapter<TPayload>(
-  config: Required<UnisightsOptions<TPayload>>,
+  config: AdapterConfig<TPayload>,
 ): (c: HonoContext, next: () => Promise<void>) => Promise<Response | void> {
   const { path, handler } = config;
 
