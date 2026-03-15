@@ -1,5 +1,7 @@
 # Unisights Python
 
+Server package for the **unisights** ecosystem.
+
 Unisights Python package provides a lightweight event collection endpoint for Python web frameworks.
 It allows your backend to receive analytics events from the Unisights client library and process them using a custom handler.
 

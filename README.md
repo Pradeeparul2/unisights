@@ -21,35 +21,50 @@ unisights/
 │   │   ├── src/
 │   │   │   └── lib.rs               # Tracker, event types, rolling key encryption
 │   │   ├── tests/
-│   │   │   ├── encryption_tests.rs  # 34 tests — bucket, key derivation, XOR, HMAC
-│   │   │   ├── event_tests.rs       # 16 tests — EventQueue, all event variants
-│   │   │   ├── session_tests.rs     # 15 tests — defaults, guards, ua_hash
-│   │   │   └── tracker_tests.rs     # 23 tests — events, scroll, time, flush
+│   │   │   ├── encryption_tests.rs
+│   │   │   ├── event_tests.rs
+│   │   │   ├── session_tests.rs
+│   │   │   └── tracker_tests.rs
 │   │   ├── Cargo.toml
 │   │   ├── Cargo.lock
 │   │   └── webdriver.json
-│   ├── unisights/                   # TypeScript SDK
-│   │   ├── src/                     # TypeScript source
-│   │   ├── tests/                   # SDK tests
+│   │
+│   ├── unisights/                   # TypeScript browser SDK
+│   │   ├── src/
+│   │   ├── tests/
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   ├── tsup.config.ts
 │   │   └── vitest.config.ts
-│   └── node/              # Node.js server receiver
+│   │
+│   ├── node/                        # Node.js server receiver
+│   │   ├── src/
+│   │   │   ├── adapters/            # Express, Fastify, Koa, Hono, Elysia, Fetch
+│   │   │   ├── index.ts             # Main entry — unisights() factory
+│   │   │   ├── parseBody.ts
+│   │   │   └── types.ts
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── tsconfig.build.json
+│   │
+│   └── python/                      # Python server receiver
 │       ├── src/
-│       │   ├── adapters/            # Express, Fastify, Koa, Hono, Elysia, Fetch
-│       │   ├── index.ts             # Main entry — unisights() factory
-│       │   ├── parseBody.ts         # Runtime-agnostic body parser
-│       │   └── types.ts             # Full payload types + UnisightsPayload
-│       ├── package.json
-│       ├── tsconfig.json
-│       └── tsconfig.build.json
+│       │   └── unisights/
+│       │       ├── collector.py     # Core payload processor
+│       │       ├── fastapi.py       # FastAPI adapter
+│       │       ├── flask.py         # Flask adapter
+│       │       ├── django.py        # Django adapter
+│       │       └── asgi.py          # Generic ASGI middleware
+│       ├── pyproject.toml
+│       └── README.md
+│
 ├── .gitignore
 ├── LICENSE
-├── package.json                     # Workspace root
+├── package.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
 └── README.md
+
 ```
 
 ### Packages
@@ -59,6 +74,7 @@ unisights/
 | [`@pradeeparul2/unisights`](./packages/unisights) | Browser library — auto-tracking, public API, script tag support                  | [README →](./packages/unisights/README.md) |
 | [`@pradeeparul2/unisights-core`](./packages/core) | Rust/WASM core — event tracking, session management, rolling key encryption      | [README →](./packages/core/README.md)      |
 | [`@pradeeparul2/unisights-node`](./packages/node) | Node.js server receiver — exposes a POST endpoint, receives payloads, always 200 | [README →](./packages/node/README.md)      |
+| [`unisights (Python)`](./packages/python)         | Python server receiver for FastAPI, Flask, Django, and ASGI frameworks           | [README →](./packages/python/README.md)    |
 
 ---
 
@@ -79,6 +95,30 @@ Browser → WASM core (your bundle) → Your endpoint → Your database
 The tracking logic — session handling, event buffering, encryption, payload serialization — runs in a Rust-compiled WASM module embedded in the JS bundle. There are no external fetches to analytics infrastructure. Your endpoint receives structured JSON payloads via `navigator.sendBeacon`, and you decide what to store, aggregate, and display.
 
 `unisights-node` is the server-side counterpart: a zero-dependency, framework-agnostic package that creates that endpoint for you.
+
+---
+
+## Architecture
+
+With the addition of the Python receiver, Unisights now supports ingestion across multiple backend ecosystems.
+
+```scss
+Browser (WASM analytics)
+        │
+        ▼
+navigator.sendBeacon()
+        │
+        ▼
+Your Endpoint
+   ├── Node.js → @pradeeparul2/unisights-node
+   └── Python  → unisights
+        │
+        ▼
+Your Database / Kafka / Data Lake
+
+```
+
+The browser never sends analytics to third-party infrastructure — all events flow directly to your backend.
 
 ---
 
@@ -230,6 +270,78 @@ All types are exported from `@pradeeparul2/unisights-node`.
 
 ---
 
+## Python Server Receiver
+
+In addition to the Node.js server package, Unisights provides a **Python receiver package** for backend services written with Python frameworks.
+
+The Python package exposes the same single **POST ingestion endpoint** used by the browser SDK.
+
+Supported frameworks:
+
+- FastAPI
+- Flask
+- Django
+- Any ASGI-compatible framework
+
+This allows Unisights events to be received by Python-based analytics pipelines, data warehouses, or stream processors.
+
+---
+
+## Install Python Receiver
+
+```python
+pip install unisights
+```
+
+## FastAPI Example
+
+```python
+from fastapi import FastAPI
+from unisights.fastapi import unisights_fastapi
+
+app = FastAPI()
+
+async def handler(payload, request):
+    print(payload)
+
+app.include_router(
+    unisights_fastapi("/collect", handler)
+)
+
+```
+
+---
+
+## Flask Example
+
+```python
+from flask import Flask
+from unisights.flask import unisights_flask
+
+app = Flask(__name__)
+
+async def handler(payload, request):
+    print(payload)
+
+app.register_blueprint(
+    unisights_flask("/collect", handler)
+)
+```
+
+## Django Example
+
+```python
+from django.urls import path
+from unisights.django import unisights_django
+
+async def handler(payload, request):
+    print(payload)
+
+urlpatterns = [
+    path("collect", unisights_django(handler))
+]
+```
+
 ## Encryption
 
 The key is derived entirely from public, reproducible inputs. **No secret is stored in or transmitted from the browser.**
@@ -325,18 +437,6 @@ Releases publish automatically to npm on push to `main`:
 5. Publishes all three packages to npm via `pnpm publish`
 
 Bump versions in `packages/core/package.json`, `packages/unisights/package.json`, and `packages/node/package.json` before merging to trigger a release.
-
----
-
-## Roadmap
-
-- [ ] ECDH key exchange — proper forward secrecy
-- [ ] `@pradeeparul/unisights-react` — React hooks package
-- [ ] `@pradeeparul/unisights-vue` — Vue plugin
-- [ ] Dashboard UI
-- [ ] Session replay
-- [ ] User identity — `identify()` API
-- [ ] Feature flags + A/B testing
 
 ---
 
