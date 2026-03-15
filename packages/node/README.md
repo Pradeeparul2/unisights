@@ -1,4 +1,4 @@
-# Unisights-node
+# Unisights Node
 
 Server package for the **unisights** ecosystem.
 
