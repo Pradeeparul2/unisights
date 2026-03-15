@@ -1,16 +1,16 @@
 # Unisights Python
 
-Server package for the **unisights** ecosystem.
-
-Unisights Python provides a complete, production-ready event collection system for Python web frameworks. It allows your backend to receive analytics events from the Unisights client library and process them using custom handlers.
-
-The package exposes a **single POST API endpoint** (`/events` by default) that receives event payloads and forwards them to your handler for processing.
-
 [![Known Vulnerabilities](https://snyk.io/test/github/Pradeeparul2/unisights/badge.svg)](https://snyk.io/test/github/Pradeeparul2/unisights)
 ![CodeQL](https://github.com/Pradeeparul2/unisights/actions/workflows/codeql.yml/badge.svg)
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
 [![PyPI version](https://img.shields.io/pypi/v/unisights)](https://pypi.org/project/unisights/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/unisights)](https://pypi.org/project/unisights/)
+
+Server package for the **unisights** ecosystem.
+
+Unisights Python provides a complete, production-ready event collection system for Python web frameworks. It allows your backend to receive analytics events from the Unisights client library and process them using custom handlers.
+
+The package exposes a **single POST API endpoint** (`/events` by default) that receives event payloads and forwards them to your handler for processing.
 
 ## Supported Frameworks
 

@@ -2,6 +2,10 @@
 
 > Privacy-first, WebAssembly-powered analytics that runs entirely in the browser — no servers required for tracking logic.
 
+[![Known Vulnerabilities](https://snyk.io/test/github/Pradeeparul2/unisights/badge.svg)](https://snyk.io/test/github/Pradeeparul2/unisights)
+![CodeQL](https://github.com/Pradeeparul2/unisights/actions/workflows/codeql.yml/badge.svg)
+![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
+
 ---
 
 ## What is Unisights?
@@ -11,10 +15,6 @@ Unisights is an open-source analytics library built on **Rust + WebAssembly**. A
 You get full analytics coverage (page views, clicks, scroll, web vitals, errors, rage clicks, engagement time, and more) with a single script tag or npm install, and you own every byte of data that leaves the browser.
 
 **Backend receivers are available for Node.js and Python**, enabling seamless integration with your existing infrastructure — Express, FastAPI, Flask, Django, Fastify, Hono, and more.
-
-[![Known Vulnerabilities](https://snyk.io/test/github/Pradeeparul2/unisights/badge.svg)](https://snyk.io/test/github/Pradeeparul2/unisights)
-![CodeQL](https://github.com/Pradeeparul2/unisights/actions/workflows/codeql.yml/badge.svg)
-![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
 
 ---
 

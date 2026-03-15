@@ -1,15 +1,15 @@
 # Unisights Node
 
-Server package for the **unisights** ecosystem.
-
-Creates a configurable endpoint that receives events captured by the **unisights** client SDK. Processing is optional. **Always returns 200** — the client never blocks on the server response. Encrypted payloads are **automatically decrypted** before reaching your handler.
-
 [![Known Vulnerabilities](https://snyk.io/test/github/Pradeeparul2/unisights/badge.svg)](https://snyk.io/test/github/Pradeeparul2/unisights)
 ![CodeQL](https://github.com/Pradeeparul2/unisights/actions/workflows/codeql.yml/badge.svg)
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
 [![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights-node)](https://www.npmjs.com/package/@pradeeparul2/unisights-node)
 [![license](https://img.shields.io/npm/l/@pradeeparul2/unisights-node)](./LICENSE)
 [![npm downloads](https://img.shields.io/npm/dw/@pradeeparul2/unisights-node)](https://www.npmjs.com/package/@pradeeparul2/unisights-node)
+
+Server package for the **unisights** ecosystem.
+
+Creates a configurable endpoint that receives events captured by the **unisights** client SDK. Processing is optional. **Always returns 200** — the client never blocks on the server response. Encrypted payloads are **automatically decrypted** before reaching your handler.
 
 ```
 unisights client SDK

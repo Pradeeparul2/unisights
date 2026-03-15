@@ -1,4 +1,4 @@
-# @pradeeparul/unisights-core
+# Unisights Core
 
 Rust-powered WebAssembly core for the Unisights analytics engine. Provides a high-performance `Tracker` with session management, event logging, scroll tracking, web vitals, and time-bucketed rolling key encryption — all compiled to WASM via [`wasm-pack`](https://rustwasm.github.io/wasm-pack/).
 
