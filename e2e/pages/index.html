@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <body>
+    <button id="btn">Click</button>
+
+    <script
+      async
+      data-insights-id="e2e-test"
+      src="/dist/index.global.js"
+      data-debug="true"
+      id="unisights-script"
+    ></script>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const endpoint = params.get("endpoint");
+
+      if (endpoint) {
+        document
+          .getElementById("unisights-script")
+          .setAttribute("data-endpoint", endpoint);
+      }
+    </script>
+
+    <script>
+      document.getElementById("btn").onclick = () => {
+        window.unisights.log("click_test", {
+          data: "button_clicked",
+        });
+      };
+    </script>
+  </body>
+</html>
