@@ -6,6 +6,7 @@ Creates a configurable endpoint that receives events captured by the **unisights
 
 [![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights-node)](https://www.npmjs.com/package/@pradeeparul2/unisights-node)
 [![license](https://img.shields.io/npm/l/@pradeeparul2/unisights-node)](./LICENSE)
+[![npm downloads](https://img.shields.io/npm/dw/@pradeeparul2/unisights-node)](https://www.npmjs.com/package/@pradeeparul2/unisights-node)
 
 ```
 unisights client SDK

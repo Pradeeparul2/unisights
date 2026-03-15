@@ -2,16 +2,13 @@
 
 > Privacy-first, WebAssembly-powered analytics that runs entirely in the browser — no servers required for tracking logic.
 
----
-
-## What is Unisights?
-
 Unisights is an open-source analytics library built on **Rust + WebAssembly**. All event processing, session management, and optional payload encryption happens inside a WASM binary compiled directly into the bundle — not on a remote server, not in a third-party cloud.
 
 You get full analytics coverage (page views, clicks, scroll, web vitals, errors, rage clicks, engagement time, and more) with a single script tag or npm install, and you own every byte of data that leaves the browser.
 
 [![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights)](https://www.npmjs.com/package/@pradeeparul2/unisights)
 [![license](https://img.shields.io/npm/l/@pradeeparul2/unisights)](./LICENSE)
+[![npm downloads](https://img.shields.io/npm/dw/@pradeeparul2/unisights)](https://www.npmjs.com/package/@pradeeparul2/unisights)
 
 ---
 

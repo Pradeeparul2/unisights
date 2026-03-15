@@ -4,6 +4,7 @@ Rust-powered WebAssembly core for the Unisights analytics engine. Provides a hig
 
 [![npm version](https://img.shields.io/npm/v/@pradeeparul2/unisights-core)](https://www.npmjs.com/package/@pradeeparul2/unisights-core)
 [![license](https://img.shields.io/npm/l/@pradeeparul2/unisights-core)](./LICENSE)
+[![npm downloads](https://img.shields.io/npm/dw/@pradeeparul2/unisights-core)](https://www.npmjs.com/package/@pradeeparul2/unisights-core)
 
 > **Note:** This package is the low-level WASM core. Most users should use [`@pradeeparul2/unisights`](https://www.npmjs.com/package/@pradeeparul2/unisights) instead, which wraps this package with a browser-friendly API and handles WASM initialization automatically.
 
