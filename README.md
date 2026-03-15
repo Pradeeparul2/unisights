@@ -12,6 +12,10 @@ You get full analytics coverage (page views, clicks, scroll, web vitals, errors,
 
 **Backend receivers are available for Node.js and Python**, enabling seamless integration with your existing infrastructure — Express, FastAPI, Flask, Django, Fastify, Hono, and more.
 
+[![Known Vulnerabilities](https://snyk.io/test/github/Pradeeparul2/unisights/badge.svg)](https://snyk.io/test/github/Pradeeparul2/unisights)
+![CodeQL](https://github.com/Pradeeparul2/unisights/actions/workflows/codeql.yml/badge.svg)
+![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
+
 ---
 
 ## Monorepo Structure
