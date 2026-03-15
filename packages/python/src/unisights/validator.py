@@ -140,7 +140,7 @@ class UnisightsValidator:
         device_info = self._validate_device_info(data.get("device_info", {}))
 
         scroll_depth = self._validate_percentage(data, "scroll_depth", default=0)
-        time_on_page = self._validate_integer(data, "time_on_page", default=0, min_value=0)
+        time_on_page = self._validate_numeric(data, "time_on_page", default=0, min_value=0)
 
         # Validate events array
         events = self._validate_events(data.get("events", []))
@@ -215,11 +215,57 @@ class UnisightsValidator:
 
     def _validate_percentage(
         self, data: Dict[str, Any], field: str, default: int = 0
-    ) -> int:
-        """Validate field as percentage (0-100)."""
-        return self._validate_integer(
-            data, field, default=default, min_value=0, max_value=100
-        )
+    ) -> float:
+        """Validate field as percentage (0-100). Accepts both int and float."""
+        value = data.get(field, default)
+
+        if value is None:
+            return float(default)
+
+        # Accept both int and float (browser sends floats)
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValidationError(field, f"Must be number, got {type(value).__name__}")
+
+        value = float(value)
+
+        if value < 0:
+            raise ValidationError(field, "Must be at least 0")
+        if value > 100:
+            raise ValidationError(field, "Must be at most 100")
+
+        return value
+
+    def _validate_numeric(
+        self,
+        data: Dict[str, Any],
+        field: str,
+        default: float = 0,
+        min_value: Optional[float] = None,
+        max_value: Optional[float] = None,
+    ) -> float:
+        """Validate numeric field (int or float).
+        
+        Accepts both int and float, returns float for precision.
+        Used for fields like time_on_page that can be decimal.
+        """
+        value = data.get(field, default)
+
+        if value is None:
+            return float(default)
+
+        # Accept both int and float
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValidationError(field, f"Must be number, got {type(value).__name__}")
+
+        value = float(value)
+
+        if min_value is not None and value < min_value:
+            raise ValidationError(field, f"Must be at least {min_value}")
+
+        if max_value is not None and value > max_value:
+            raise ValidationError(field, f"Must be at most {max_value}")
+
+        return value
 
     def _validate_uuid(
         self, data: Dict[str, Any], field: str, required: bool = False
@@ -266,31 +312,89 @@ class UnisightsValidator:
         return value
 
     def _validate_device_info(self, device_dict: Dict[str, Any]) -> DeviceInfo:
-        """Validate device info structure."""
+        """Validate device info structure.
+        
+        Expected fields (all optional with defaults):
+        - user_agent: str (default "Unknown")
+        - os: str (default "Unknown")
+        - platform: str (default "Unknown")
+        - device_type: str (default "Desktop", must be Desktop|Mobile|Tablet)
+        - referrer: str (default "Unknown")
+        - screen_height: int (default 0)
+        - screen_width: int (default 0)
+        """
         if not device_dict:
-            return DeviceInfo(browser="Unknown", os="Unknown")
+            return DeviceInfo(
+                user_agent="Unknown",
+                os="Unknown",
+                platform="Unknown",
+                device_type="Desktop",
+                referrer="Unknown",
+                screen_height=0,
+                screen_width=0,
+            )
 
         if not isinstance(device_dict, dict):
             raise ValidationError("device_info", "Must be object")
 
-        browser = device_dict.get("browser", "Unknown")
-        if not isinstance(browser, str):
-            raise ValidationError("device_info.browser", "Must be string")
+        # user_agent
+        user_agent = device_dict.get("user_agent", "Unknown")
+        if not isinstance(user_agent, str):
+            raise ValidationError("device_info.user_agent", "Must be string")
 
+        # os
         os = device_dict.get("os", "Unknown")
         if not isinstance(os, str):
             raise ValidationError("device_info.os", "Must be string")
 
+        # platform
+        platform = device_dict.get("platform", "Unknown")
+        if not isinstance(platform, str):
+            raise ValidationError("device_info.platform", "Must be string")
+
+        # device_type
         device_type = device_dict.get("device_type", "Desktop")
+        if not isinstance(device_type, str):
+            raise ValidationError("device_info.device_type", "Must be string")
+
         if device_type not in ["Desktop", "Mobile", "Tablet"]:
-            if not isinstance(device_type, str):
-                raise ValidationError("device_info.device_type", "Must be string")
             logger.warning(f"Unknown device_type: {device_type}")
 
-        return DeviceInfo(browser=browser, os=os, device_type=device_type)
+        # referrer
+        referrer = device_dict.get("referrer", "Unknown")
+        if not isinstance(referrer, str):
+            raise ValidationError("device_info.referrer", "Must be string")
+
+        # screen_height
+        screen_height = device_dict.get("screen_height", 0)
+        if not isinstance(screen_height, int):
+            raise ValidationError("device_info.screen_height", "Must be integer")
+
+        # screen_width
+        screen_width = device_dict.get("screen_width", 0)
+        if not isinstance(screen_width, int):
+            raise ValidationError("device_info.screen_width", "Must be integer")
+
+        return DeviceInfo(
+            user_agent=user_agent,
+            os=os,
+            platform=platform,
+            device_type=device_type,
+            referrer=referrer,
+            screen_height=screen_height,
+            screen_width=screen_width,
+        )
 
     def _validate_utm_params(self, utm_dict: Dict[str, Any]) -> UtmParams:
-        """Validate UTM parameters."""
+        """Validate UTM parameters.
+        
+        Expected format (camelCase from browser SDK):
+        {
+            "utmSource": "google",
+            "utmMedium": "cpc",
+            "utmCampaign": "summer_sale"
+        }
+        """
         if not utm_dict:
             return UtmParams()
 
@@ -299,21 +403,27 @@ class UnisightsValidator:
 
         params = UtmParams()
 
-        # Standard UTM parameters
-        for field in ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]:
-            value = utm_dict.get(field)
+        # Standard UTM parameters - camelCase format from browser
+        utm_mapping = {
+            'utm_source': 'utmSource',
+            'utm_medium': 'utmMedium',
+            'utm_campaign': 'utmCampaign',
+            'utm_term': 'utmTerm',
+            'utm_content': 'utmContent',
+        }
+
+        for python_attr, browser_key in utm_mapping.items():
+            value = utm_dict.get(browser_key)
             if value is not None:
                 if not isinstance(value, str):
-                    raise ValidationError(f"utm_params.{field}", "Must be string")
-                setattr(params, field, value)
+                    raise ValidationError(f"utm_params.{browser_key}", "Must be string")
+                setattr(params, python_attr, value)
 
         # Custom parameters
-        standard_fields = {
-            "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"
-        }
+        standard_keys = set(utm_mapping.values())
         params.custom_params = {
             k: v for k, v in utm_dict.items()
-            if k not in standard_fields and isinstance(v, str)
+            if k not in standard_keys and isinstance(v, str)
         }
 
         return params
@@ -428,7 +538,19 @@ class UnisightsValidator:
             return False, None, f"Invalid JSON: {str(e)}"
 
 
-# Convenience function
+# Convenience functions
+def validate_json_payload(body: bytes) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+    """Parse and validate JSON payload.
+
+    Args:
+        body: Raw request body
+
+    Returns:
+        Tuple of (is_valid, parsed_data, error_message)
+    """
+    return UnisightsValidator.validate_json_payload(body)
+
+
 def validate_unisights_payload(
     raw_payload: Dict[str, Any],
     strict: bool = True,

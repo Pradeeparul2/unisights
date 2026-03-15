@@ -13,12 +13,12 @@ export interface Unisights {
 }
 
 export interface DeviceData {
-  userAgent: string;
+  user_agent: string;
   platform: string;
   os: string;
-  screenWidth: number;
-  screenHeight: number;
-  deviceType: string;
+  screen_width: number;
+  screen_height: number;
+  device_type: string;
 }
 
 export interface UnisightsConfig {

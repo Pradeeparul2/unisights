@@ -37,11 +37,11 @@ export function getDeviceInfo(): DeviceData {
             : "Unknown";
 
   return {
-    userAgent: ua,
+    user_agent: ua,
     platform,
     os,
-    screenWidth: screen.width,
-    screenHeight: screen.height,
-    deviceType: /Mobi|Android/i.test(ua) ? "Mobile" : "Desktop",
+    screen_width: screen.width,
+    screen_height: screen.height,
+    device_type: /Mobi|Android/i.test(ua) ? "Mobile" : "Desktop",
   };
 }

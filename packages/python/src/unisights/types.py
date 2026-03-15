@@ -102,25 +102,37 @@ class DeviceType(str, Enum):
 @dataclass
 class DeviceInfo:
     """Device and browser information."""
-    browser: str
-    os: str
+    user_agent: str = "Unknown"
+    os: str = "Unknown"
+    platform: str = "Unknown"
     device_type: str = "Desktop"
+    referrer: str = "Unknown"
+    screen_height: int = 0
+    screen_width: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            "browser": self.browser,
+            "user_agent": self.user_agent,
             "os": self.os,
-            "device_type": self.device_type
+            "platform": self.platform,
+            "referrer": self.referrer,
+            "device_type": self.device_type,
+            "screen_height": self.screen_height,
+            "screen_width": self.screen_width,
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "DeviceInfo":
         """Create from dictionary with validation."""
         return cls(
-            browser=data.get("browser", "Unknown"),
+            user_agent=data.get("user_agent", "Unknown"),
             os=data.get("os", "Unknown"),
-            device_type=data.get("device_type", "Desktop")
+            platform=data.get("platform", "Unknown"),
+            referrer=data.get("referrer", "Unknown"),
+            device_type=data.get("device_type", "Desktop"),
+            screen_height=data.get("screen_height", 0),
+            screen_width=data.get("screen_width", 0),
         )
 
 
@@ -187,8 +199,8 @@ class UnisightsData:
     device_info: DeviceInfo = field(default_factory=lambda: DeviceInfo("Unknown", "Unknown"))
 
     # Engagement
-    scroll_depth: int = 0  # 0-100
-    time_on_page: int = 0  # seconds
+    scroll_depth: float = 0  # 0-100 percentage (can be float)
+    time_on_page: float = 0  # seconds (can be float for precision)
 
     # Events
     events: List[UnisightsEvent] = field(default_factory=list)

@@ -1,4 +1,3 @@
-# src/unisights/django.py
 """
 Django integration for Unisights event collection.
 
@@ -32,8 +31,12 @@ from django.views.decorators.http import require_http_methods
 from django.middleware.cors import CorsMiddleware
 
 from .types import UnisightsPayload, UnisightsOptions
-from .validator import UnisightsValidator, ValidationError, validate_json_payload
+from .validator import UnisightsValidator, ValidationError
 from .collector import Unisights
+
+def validate_json_payload(body: bytes):
+    """Wrapper for JSON validation."""
+    return UnisightsValidator.validate_json_payload(body)
 
 logger = logging.getLogger(__name__)
 

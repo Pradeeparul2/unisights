@@ -1,4 +1,3 @@
-# src/unisights/fastapi.py
 """
 FastAPI integration for Unisights event collection.
 
@@ -23,8 +22,12 @@ from typing import Optional
 from fastapi import APIRouter, Request, HTTPException, status
 
 from .types import UnisightsPayload, UnisightsOptions
-from .validator import UnisightsValidator, ValidationError, validate_json_payload
+from .validator import UnisightsValidator, ValidationError
 from .collector import Unisights
+
+def validate_json_payload(body: bytes):
+    """Wrapper for JSON validation."""
+    return UnisightsValidator.validate_json_payload(body)
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +57,7 @@ def unisights_fastapi(options: Optional[UnisightsOptions] = None) -> APIRouter:
         options = UnisightsOptions()
 
     router = APIRouter(tags=["unisights"])
-    collector = Unisights(
-        handler=options.handler,
-        debug=options.debug
-    )
+    collector = Unisights(handler=options.handler)
     validator = UnisightsValidator(
         validate_schema=options.validate_schema,
         validate_required_fields=options.validate_required_fields,

@@ -1,4 +1,3 @@
-# src/unisights/asgi.py (updated)
 """
 ASGI middleware for Unisights event collection.
 
@@ -11,8 +10,12 @@ import logging
 from typing import Callable, Optional, Any
 
 from .types import UnisightsPayload, UnisightsOptions
-from .validator import UnisightsValidator, ValidationError, validate_json_payload
+from .validator import UnisightsValidator, ValidationError
 from .collector import Unisights
+
+def validate_json_payload(body: bytes):
+    """Wrapper for JSON validation."""
+    return UnisightsValidator.validate_json_payload(body)
 
 logger = logging.getLogger(__name__)
 
