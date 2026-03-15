@@ -50,3 +50,20 @@ if (typeof window !== "undefined") {
     },
   };
 }
+
+// At the bottom of your init.ts or index.ts
+(function autoInit() {
+  const script =
+    (document.currentScript as HTMLScriptElement | null) ??
+    document.querySelector<HTMLScriptElement>("script[data-insights-id]");
+
+  if (!script) return;
+
+  const endpoint = script.getAttribute("data-endpoint");
+  const insightsId = script.getAttribute("data-insights-id");
+  const debug = script.getAttribute("data-debug") === "true";
+
+  if (endpoint && insightsId) {
+    init({ endpoint, insightsId, debug });
+  }
+})();
