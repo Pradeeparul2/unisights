@@ -1,6 +1,6 @@
 [project]
 name = "unisights"
-version = "0.0.1-beta.12"
+version = "0.0.1-beta.15"
 authors = [
   { name="Pradeep Arul", email="pradeeparul2@gmail.com" },
 ]
@@ -20,3 +20,10 @@ license-files = ["LICEN[CS]E*"]
 [project.urls]
 Homepage = "https://github.com/Pradeeparul2/unisights"
 Issues = "https://github.com/Pradeeparul2/unisights/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.20",
+    "pytest-cov>=4.0",
+]

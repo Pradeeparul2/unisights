@@ -24,6 +24,17 @@ from .validator import (
     validate_unisights_payload,
 )
 
+# Encryption
+from .encryption import (
+    decrypt_payload,
+    decrypt_ciphertext,
+    derive_client_key,
+    EncryptionError,
+    TagMismatchError,
+    DecryptionError,
+    verify_encrypted_payload,
+)
+
 # Framework integrations
 try:
     from .fastapi import unisights_fastapi
@@ -46,7 +57,7 @@ except ImportError:
     pass  # ASGI dependencies not installed
 
 # Version
-__version__ = "0.0.1-beta.12"
+__version__ = "0.0.1-beta.15"
 
 # Public API
 __all__ = [
@@ -63,6 +74,14 @@ __all__ = [
     "ValidationError",
     "validate_json_payload",
     "validate_unisights_payload",
+    # Encryption
+    "decrypt_payload",
+    "decrypt_ciphertext",
+    "derive_client_key",
+    "EncryptionError",
+    "TagMismatchError",
+    "DecryptionError",
+    "verify_encrypted_payload",
     # Framework integrations
     "unisights_fastapi",
     "unisights_flask",

@@ -1,3 +1,4 @@
+# src/unisights/validator.py
 """
 Enhanced payload validation matching @pradeeparul2/unisights-node structure.
 
@@ -67,6 +68,8 @@ class UnisightsValidator:
 
     def validate(self, raw_payload: Dict[str, Any]) -> UnisightsPayload:
         """Validate and parse raw payload.
+        
+        If payload is encrypted, automatically decrypts before validation.
 
         Args:
             raw_payload: Dictionary from JSON.parse()
@@ -76,6 +79,7 @@ class UnisightsValidator:
 
         Raises:
             ValidationError: If validation fails
+            DecryptionError: If decryption fails (if payload is encrypted)
         """
         self.errors = []
 
@@ -86,6 +90,38 @@ class UnisightsValidator:
         if not raw_payload:
             raise ValidationError("payload", "Payload cannot be empty")
 
+        # Convert browser SDK encrypted format to standard format
+        # Browser sends: {data: "<ciphertext>", tag: "...", bucket: ..., site_id: ..., encrypted: true}
+        # We need: {encrypted: true, envelope: {site_id, bucket, tag, ciphertext}, data: {}}
+        if raw_payload.get("encrypted") and isinstance(raw_payload.get("data"), str):
+            logger.debug("Detected browser SDK encrypted format, converting to standard format")
+            raw_payload = {
+                "encrypted": True,
+                "envelope": {
+                    "site_id": raw_payload.get("site_id"),
+                    "ua_hash": raw_payload.get("ua_hash", ""),
+                    "bucket": raw_payload.get("bucket"),
+                    "tag": raw_payload.get("tag"),
+                    "ciphertext": raw_payload.get("data"),  # Browser sends ciphertext as "data"
+                },
+                "data": {}
+            }
+
+        # Check if encrypted and decrypt if needed
+        encrypted = raw_payload.get("encrypted", False)
+        if not isinstance(encrypted, bool):
+            raise ValidationError("encrypted", "Must be boolean")
+
+        if encrypted:
+            # Auto-decrypt encrypted payload
+            from .encryption import decrypt_payload, DecryptionError, TagMismatchError
+            try:
+                raw_payload = decrypt_payload(raw_payload)
+                logger.info("Payload decrypted successfully")
+            except (DecryptionError, TagMismatchError) as e:
+                logger.error(f"Decryption failed: {e}")
+                raise ValidationError("encryption", str(e))
+
         # Validate top-level structure
         if "data" not in raw_payload:
             raise ValidationError("data", "Missing required field")
@@ -93,10 +129,6 @@ class UnisightsValidator:
         data_dict = raw_payload.get("data")
         if not isinstance(data_dict, dict):
             raise ValidationError("data", "Must be a JSON object")
-
-        encrypted = raw_payload.get("encrypted", False)
-        if not isinstance(encrypted, bool):
-            raise ValidationError("encrypted", "Must be boolean")
 
         # Validate UnisightsData
         try:

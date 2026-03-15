@@ -44,6 +44,7 @@ unisights/
 │   │   │   ├── adapters/            # Express, Fastify, Koa, Hono, Elysia, Fetch
 │   │   │   ├── index.ts             # Main entry — unisights() factory
 │   │   │   ├── parseBody.ts
+│   │   │   ├── encryption.ts        # Auto-decryption engine
 │   │   │   └── types.ts
 │   │   ├── tests/
 │   │   ├── package.json
@@ -55,7 +56,8 @@ unisights/
 │       │   └── unisights/
 │       │       ├── __init__.py
 │       │       ├── types.py         # Type definitions (matching Node.js)
-│       │       ├── validator.py     # Comprehensive validation engine
+│       │       ├── validator.py     # Validation + auto-decryption
+│       │       ├── encryption.py    # Encryption/decryption engine
 │       │       ├── collector.py     # Core payload processor
 │       │       ├── config.py        # Configuration
 │       │       ├── fastapi.py       # FastAPI integration
@@ -82,12 +84,12 @@ unisights/
 
 ### Packages
 
-| Package                                           | Description                                                                                 | Supported                                                     | Docs                                       |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------ |
-| [`@pradeeparul2/unisights`](./packages/unisights) | **Browser SDK** — auto-tracking, public API, script tag support, Web Vitals, error tracking | ✅ All browsers                                               | [README →](./packages/unisights/README.md) |
-| [`@pradeeparul2/unisights-core`](./packages/core) | **Rust/WASM core** — event tracking, session management, rolling key encryption             | ✅ Web, Node.js                                               | [README →](./packages/core/README.md)      |
-| [`@pradeeparul2/unisights-node`](./packages/node) | **Node.js receiver** — POST endpoint, fully typed payloads, 0 dependencies                  | Express, NestJS, Fastify, Koa, Hono, Elysia, Fetch API (edge) | [README →](./packages/node/README.md)      |
-| [`unisights` (Python)](./packages/python)         | **Python receiver** — POST endpoint, type-safe validation, background queue support         | FastAPI, Flask, Django, ASGI                                  | [README →](./packages/python/README.md)    |
+| Package                                           | Description                                                                                  | Supported                                                     | Docs                                       |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------ |
+| [`@pradeeparul2/unisights`](./packages/unisights) | **Browser SDK** — auto-tracking, public API, script tag support, Web Vitals, error tracking  | ✅ All browsers                                               | [README →](./packages/unisights/README.md) |
+| [`@pradeeparul2/unisights-core`](./packages/core) | **Rust/WASM core** — event tracking, session management, rolling key encryption              | ✅ Web, Node.js                                               | [README →](./packages/core/README.md)      |
+| [`@pradeeparul2/unisights-node`](./packages/node) | **Node.js receiver** — POST endpoint, fully typed payloads, auto-decryption, 0 dependencies  | Express, NestJS, Fastify, Koa, Hono, Elysia, Fetch API (edge) | [README →](./packages/node/README.md)      |
+| [`unisights` (Python)](./packages/python)         | **Python receiver** — POST endpoint, auto-decryption, type-safe validation, background queue | FastAPI, Flask, Django, ASGI                                  | [README →](./packages/python/README.md)    |
 
 ---
 
@@ -126,10 +128,14 @@ navigator.sendBeacon()
         ▼
 Your Endpoint
    ├── Node.js      → @pradeeparul2/unisights-node
+   │   ├─ auto-decryption (if encrypted: true)
+   │   ├─ full type safety
    │   ├── Express, NestJS, Fastify, Koa
    │   └── Edge (Vercel, Netlify, Cloudflare Workers, Deno, Bun)
    │
    └── Python       → unisights (PyPI)
+       ├─ auto-decryption (if encrypted: true)
+       ├─ full type safety
        ├── FastAPI (async-first)
        ├── Flask (with background queue)
        └── Django (sync & async views)
@@ -142,7 +148,7 @@ Your Storage
    └── Custom pipeline
 ```
 
-The browser never sends analytics to third-party infrastructure — all events flow directly to your backend.
+The browser never sends analytics to third-party infrastructure — all events flow directly to your backend. Encrypted payloads are **automatically decrypted** server-side before reaching your handler.
 
 ---
 
@@ -165,15 +171,178 @@ The browser never sends analytics to third-party infrastructure — all events f
 | Custom events                              | ✅        | ✅        | ✅    | ✅           | ✅     |
 | **Privacy & Security**                     |
 | Client-side encryption                     | ✅        | ❌        | ❌    | ❌           | ❌     |
+| Auto-decryption on server                  | ✅        | ❌        | ❌    | ❌           | ❌     |
 | No secret in browser                       | ✅        | ✅        | ✅    | ✅           | ✅     |
 | No cookies                                 | ✅        | ✅        | ✅    | ✅           | ✅     |
 | **Backend**                                |
 | Node.js receiver                           | ✅        | ❌        | ❌    | ❌           | ❌     |
 | Python receiver                            | ✅        | ❌        | ❌    | ❌           | ❌     |
+| Auto-decryption (Node.js)                  | ✅        | ❌        | ❌    | ❌           | ❌     |
+| Auto-decryption (Python)                   | ✅        | ❌        | ❌    | ❌           | ❌     |
 | Self-hostable                              | ✅        | ✅        | ✅    | ✅           | ✅     |
 | **Bundle Size**                            | ~86KB     | ~1KB      | ~8KB  | ~3KB         | ~2KB   |
 
-**The tradeoff is honest** — Plausible and Umami are far smaller because they do far less in the browser. Unisights trades bundle size for richer data collection, client-side security guarantees, and dual backend support (Node.js + Python).
+**The tradeoff is honest** — Plausible and Umami are far smaller because they do far less in the browser. Unisights trades bundle size for richer data collection, client-side security guarantees, and dual backend support (Node.js + Python) with **automatic encryption/decryption**.
+
+---
+
+## 🔐 Encryption & Auto-Decryption
+
+Unisights provides **end-to-end encryption** with **automatic server-side decryption** on both Node.js and Python backends.
+
+### How It Works
+
+The key is derived entirely from **public, reproducible inputs**. No secret is stored in or transmitted from the browser.
+
+```
+bucket     = floor(timestamp_ms / 30_000)        // rotates every 30 seconds
+client_key = SHA256(site_id || ":" || bucket || ":" || ua_hash)
+ciphertext = plaintext XOR keystream(client_key)
+tag        = HMAC-SHA256(client_key, ciphertext)
+```
+
+### Enable Encryption
+
+**Browser:**
+
+```ts
+await init({
+  endpoint: "https://your-api.com/collect",
+  encrypt: true,
+});
+```
+
+### Node.js Backend — Auto-Decryption
+
+```ts
+import { unisights } from "@pradeeparul2/unisights-node";
+
+const collector = unisights({
+  path: "/collect",
+  handler: async (payload) => {
+    // ✅ Payload is AUTOMATICALLY decrypted if encrypted: true
+    // ✅ Handler receives clean, fully typed data
+    // ✅ No decryption logic needed on your part
+
+    await db.events.insert(payload.data);
+  },
+});
+
+app.use(collector);
+```
+
+**What happens automatically:**
+
+1. ✅ Detects `encrypted: true` flag
+2. ✅ Extracts site_id, bucket, tag, ciphertext from payload
+3. ✅ Derives client_key using SHA256(site_id : bucket : ua_hash)
+4. ✅ Verifies HMAC-SHA256 tag (rejects if tampered)
+5. ✅ Decrypts XOR ciphertext using keystream
+6. ✅ Parses JSON and validates structure
+7. ✅ Passes fully typed `UnisightsPayload` to your handler
+
+### Python Backend — Auto-Decryption
+
+```python
+from fastapi import FastAPI
+from unisights.fastapi import unisights_fastapi
+from unisights import UnisightsOptions
+
+app = FastAPI()
+
+async def handler(payload, request):
+    # ✅ Payload is AUTOMATICALLY decrypted if encrypted: true
+    # ✅ Handler receives clean, fully typed data
+    # ✅ No decryption logic needed on your part
+
+    await db.events.insert_one(payload.data.to_dict())
+
+options = UnisightsOptions(handler=handler)
+app.include_router(unisights_fastapi(options))
+```
+
+**What happens automatically:**
+
+1. ✅ Detects `encrypted: true` flag in validator
+2. ✅ Extracts encryption fields from payload (supports both envelope and root level)
+3. ✅ Derives client_key using SHA256(site_id : bucket : ua_hash)
+4. ✅ Verifies HMAC-SHA256 tag (rejects if tampered)
+5. ✅ Decrypts XOR ciphertext using keystream
+6. ✅ Parses JSON and validates structure
+7. ✅ Passes fully typed `UnisightsPayload` to your handler
+
+### Supported Encryption Formats
+
+Both backends automatically support two encryption payload formats:
+
+**Standard Envelope Format:**
+
+```json
+{
+  "encrypted": true,
+  "envelope": {
+    "site_id": "unisights-html-test-site",
+    "ua_hash": "abc123def456",
+    "bucket": 59119024,
+    "tag": "8zweOhmtEzKl2iXbCGcnFd/MJmiP8qbvjjn8OQy2JTg=",
+    "ciphertext": "B3hpX9b+iG5p7I7P8jd4sO2aI20..."
+  }
+}
+```
+
+**Browser SDK Format (Auto-detected):**
+
+```json
+{
+  "encrypted": true,
+  "data": "B3hpX9b+iG5p7I7P8jd4sO2aI20...",
+  "tag": "8zweOhmtEzKl2iXbCGcnFd/MJmiP8qbvjjn8OQy2JTg=",
+  "bucket": 59119024,
+  "site_id": "unisights-html-test-site",
+  "ua_hash": ""
+}
+```
+
+Both formats are automatically detected and handled transparently.
+
+### Error Handling
+
+Both backends gracefully handle encryption errors:
+
+| Error              | Cause                            | Handling                             |
+| ------------------ | -------------------------------- | ------------------------------------ |
+| `TagMismatchError` | Ciphertext tampered or wrong key | Returns 422 + validation error       |
+| `DecryptionError`  | Missing encryption fields        | Returns 422 + validation error       |
+| Empty `ua_hash`    | Browser didn't send user agent   | ✅ Handled gracefully                |
+| Missing `envelope` | Browser SDK format detected      | ✅ Auto-converted to standard format |
+
+### Security Guarantees
+
+- ✅ **Tamper-proof**: HMAC-SHA256 authentication prevents modifications
+- ✅ **No browser secrets**: Key derived from public inputs (site_id, bucket, ua_hash)
+- ✅ **Time-bucketed**: Keys rotate every 30 seconds
+- ✅ **Zero configuration**: Automatic on both Node.js and Python
+- ✅ **Full type safety**: TypeScript/Python types ensure correct handling
+
+### No Manual Decryption Needed
+
+You **do not** need to write decryption code:
+
+```ts
+// ❌ DON'T DO THIS
+if (payload.encrypted) {
+  const decrypted = decrypt(payload); // NOT NEEDED
+}
+
+// ✅ DO THIS (BOTH BACKENDS)
+async function handler(payload) {
+  // payload.encrypted is always false here
+  // if it was encrypted, it's already decrypted
+  await db.events.insert(payload.data);
+}
+```
+
+See [`packages/core#encryption`](./packages/core/README.md#encryption) for algorithm details.
 
 ---
 
@@ -193,6 +362,7 @@ Drop this into your HTML `<head>` — no build tools required:
 <script>
   window.unisights.init({
     endpoint: "https://your-api.com/collect",
+    encrypt: true, // optional encryption
   });
 </script>
 ```
@@ -213,7 +383,7 @@ await init({
   trackErrors: true,
   trackRageClicks: true,
   trackEngagementTime: true,
-  encrypt: true, // optional
+  encrypt: true, // optional encryption
 });
 ```
 
@@ -231,7 +401,8 @@ import { unisights } from "@pradeeparul2/unisights-node";
 const collector = unisights({
   path: "/collect",
   handler: async (payload) => {
-    // payload is fully typed as UnisightsPayload
+    // ✅ Auto-decrypted if encrypted
+    // ✅ Fully typed UnisightsPayload
     await db.events.insert(payload.data);
   },
 });
@@ -261,7 +432,8 @@ from unisights import UnisightsOptions
 app = FastAPI()
 
 async def handler(payload, request):
-    # payload is fully typed UnisightsPayload
+    # ✅ Auto-decrypted if encrypted
+    # ✅ Fully typed UnisightsPayload
     await db.events.insert_one(payload.data.to_dict())
 
 options = UnisightsOptions(handler=handler)
@@ -364,57 +536,6 @@ All types are **exported** from both `@pradeeparul2/unisights-node` (TypeScript)
 
 ---
 
-## Encryption
-
-The key is derived entirely from public, reproducible inputs. **No secret is stored in or transmitted from the browser.**
-
-```
-bucket     = floor(timestamp_ms / 30_000)        // rotates every 30 seconds
-client_key = SHA256(site_id || ":" || bucket || ":" || ua_hash)
-ciphertext = plaintext XOR keystream(client_key)
-tag        = HMAC-SHA256(client_key, ciphertext)
-```
-
-Enable with a single flag:
-
-**Browser:**
-
-```ts
-await init({
-  endpoint: "https://your-api.com/collect",
-  encrypt: true,
-});
-```
-
-**Server (Node.js):**
-
-```ts
-import { decrypt } from "@pradeeparul2/unisights-node";
-
-const handler = async (payload) => {
-  if (payload.encrypted) {
-    const decrypted = decrypt(payload, "YOUR_SITE_ID");
-    await db.events.insert(decrypted);
-  }
-};
-```
-
-**Server (Python):**
-
-```python
-from unisights.validator import UnisightsValidator
-
-validator = UnisightsValidator()
-
-if payload.encrypted:
-    decrypted_payload = validator.decrypt(payload, "YOUR_SITE_ID")
-    await db.events.insert_one(decrypted_payload.data.to_dict())
-```
-
-See [`packages/core/README.md`](./packages/core/README.md) for implementation details.
-
----
-
 ## Documentation
 
 ### Browser SDK
@@ -432,12 +553,13 @@ See [`packages/core/README.md`](./packages/core/README.md) for implementation de
 
 - **Framework guides** → [`packages/node/README.md`](./packages/node/README.md)
 - **Payload types** → TypeScript definitions, handler patterns
-- **Decryption** → Client-side encryption + server verification
+- **Auto-decryption** → Automatic handling of encrypted payloads
 
 ### Python Receiver
 
 - **Framework integration** → [`packages/python/README.md`](./packages/python/README.md)
 - **Type definitions** → Matching Node.js specification
+- **Auto-decryption** → Automatic handling of encrypted payloads
 - **Validation & error handling** → Comprehensive payload validation
 - **Examples** → FastAPI, Flask, Django, ASGI
 - **Production setup** → Docker, deployment, performance
@@ -578,11 +700,11 @@ Built with ❤️ by [Pradeep Arul](https://github.com/pradeeparul2).
 
 ## Quick Links
 
-| Link                                          | Description                                       |
-| --------------------------------------------- | ------------------------------------------------- |
-| [Browser SDK](./packages/unisights)           | `@pradeeparul2/unisights` — Browser library       |
-| [WASM Core](./packages/core)                  | `@pradeeparul2/unisights-core` — Rust/WASM engine |
-| [Node.js Receiver](./packages/node)           | `@pradeeparul2/unisights-node` — Server ingestion |
-| [Python Receiver](./packages/python)          | `unisights` — FastAPI, Flask, Django support      |
-| [Examples](./packages/python/examples)        | Complete implementation examples                  |
-| [Encryption Spec](./packages/core#encryption) | Rolling-key algorithm & verification              |
+| Link                                          | Description                                                |
+| --------------------------------------------- | ---------------------------------------------------------- |
+| [Browser SDK](./packages/unisights)           | `@pradeeparul2/unisights` — Browser library                |
+| [WASM Core](./packages/core)                  | `@pradeeparul2/unisights-core` — Rust/WASM engine          |
+| [Node.js Receiver](./packages/node)           | `@pradeeparul2/unisights-node` — Auto-decrypting server    |
+| [Python Receiver](./packages/python)          | `unisights` — FastAPI, Flask, Django, auto-decrypt support |
+| [Examples](./packages/python/examples)        | Complete implementation examples                           |
+| [Encryption Spec](./packages/core#encryption) | Rolling-key algorithm & verification                       |
