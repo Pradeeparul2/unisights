@@ -1,15 +1,15 @@
 import { test, expect } from "@playwright/test";
-import { spawn, ChildProcess } from "child_process";
 
-const frameworks = [{ name: "express", port: 3001 }];
+const frameworks = [
+  { name: "express", port: 3001 },
+  { name: "fastapi", port: 3002 },
+];
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 frameworks.forEach(({ name, port }) => {
   test.describe.serial(`${name} ingestion`, () => {
-    let server: ChildProcess;
-
     const endpoint = encodeURIComponent(
       `http://127.0.0.1:${port}/collect-${name}/event`,
     );
