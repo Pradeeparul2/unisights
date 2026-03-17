@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 const endpoint = encodeURIComponent("http://localhost:3001/collect/event");
 const PAGE_PATH = `/?endpoint=${endpoint}`;
 
-test.describe("SDK Initialization", () => {
+test.describe.serial("SDK Initialization", () => {
   test("SDK script loads successfully", async ({ page }) => {
     const responsePromise = page.waitForResponse((res) =>
       res.url().includes("index.global.js"),
