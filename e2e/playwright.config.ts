@@ -1,5 +1,4 @@
 import { defineConfig } from "@playwright/test";
-import path from "path";
 
 export default defineConfig({
   testDir: "./tests",
@@ -14,16 +13,36 @@ export default defineConfig({
   },
 
   /* serve the test HTML page */
-  webServer: {
-    command: "npx serve ./pages -l 3000",
-    port: 3000,
-    reuseExistingServer: true,
-  },
+  webServer: [
+    {
+      command: "npx serve ./pages -l 3000",
+      port: 3000,
+      reuseExistingServer: true,
+    },
+    {
+      command: "node frameworks/express.ts",
+      port: 3001,
+      reuseExistingServer: true,
+    },
+  ],
 
   projects: [
     {
       name: "chromium",
       use: { browserName: "chromium" },
+    },
+    {
+      name: "edge",
+      use: {
+        browserName: "chromium",
+        channel: "msedge",
+      },
+    },
+    {
+      name: "safari",
+      use: {
+        browserName: "webkit",
+      },
     },
   ],
 

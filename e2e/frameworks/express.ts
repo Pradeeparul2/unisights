@@ -28,7 +28,7 @@ app.use(
 
 /* test endpoint */
 app.get("/test/events", (req, res) => {
-  res.json(events);
+  res.json(events[0] || null);
 });
 
 app.listen(3001, () => {
