@@ -1,12 +1,15 @@
 import { test, expect } from "@playwright/test";
 
+const endpoint = encodeURIComponent("http://localhost:3001/collect/event");
+const PAGE_PATH = `/?endpoint=${endpoint}`;
+
 test.describe("SDK Initialization", () => {
   test("SDK script loads successfully", async ({ page }) => {
     const responsePromise = page.waitForResponse((res) =>
       res.url().includes("index.global.js"),
     );
 
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     const response = await responsePromise;
 
@@ -14,7 +17,7 @@ test.describe("SDK Initialization", () => {
   });
 
   test("SDK attaches global object to window", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     await page.waitForFunction(() => window.unisights !== undefined);
 
@@ -26,7 +29,7 @@ test.describe("SDK Initialization", () => {
   });
 
   test("SDK exposes public API methods", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     const api = await page.evaluate(() => ({
       init: typeof window.unisights?.init,
@@ -42,7 +45,7 @@ test.describe("SDK Initialization", () => {
   });
 
   test("SDK initializes automatically via script tag", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     const initialized = await page.evaluate(() => {
       return !!window.unisights;
@@ -52,10 +55,17 @@ test.describe("SDK Initialization", () => {
   });
 
   test("SDK reads configuration from script attributes", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH, { waitUntil: "networkidle" });
+    await page.waitForFunction(
+      () => {
+        const el = document.getElementById("unisights-script");
+        return el?.getAttribute("data-endpoint")?.includes("collect") ?? false;
+      },
+      { timeout: 15000 },
+    );
 
     const config = await page.evaluate(() => {
-      const tag = document.querySelector("script[data-insights-id]");
+      const tag = document.getElementById("unisights-script");
       return {
         insightsId: tag?.getAttribute("data-insights-id"),
         endpoint: tag?.getAttribute("data-endpoint"),
@@ -63,7 +73,7 @@ test.describe("SDK Initialization", () => {
     });
 
     expect(config.insightsId).toBe("e2e-test");
-    expect(config.endpoint).toContain("collect-express");
+    expect(config.endpoint).toContain("collect");
   });
 
   test("SDK does not throw runtime errors during initialization", async ({
@@ -75,13 +85,13 @@ test.describe("SDK Initialization", () => {
       errors.push(err.message);
     });
 
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     expect(errors.length).toBe(0);
   });
 
   test("SDK initializes only once", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     const result = await page.evaluate(() => {
       const first = window.unisights;
@@ -93,7 +103,7 @@ test.describe("SDK Initialization", () => {
   });
 
   test("SDK queue processes calls before initialization", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto(PAGE_PATH);
 
     const result = await page.evaluate(() => {
       window.unisightsq = window.unisightsq || [];
