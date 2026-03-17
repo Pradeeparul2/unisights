@@ -12,22 +12,33 @@
     ></script>
 
     <script>
-      const params = new URLSearchParams(window.location.search);
-      const endpoint = params.get("endpoint");
+      // No return statements allowed here
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const endpoint = params.get("endpoint");
 
-      if (endpoint) {
-        document
-          .getElementById("unisights-script")
-          .setAttribute("data-endpoint", endpoint);
+        const scriptEl = document.getElementById("unisights-script");
+        if (scriptEl && endpoint) {
+          scriptEl.setAttribute("data-endpoint", endpoint);
+          console.log("Set data-endpoint to:", endpoint);
+        }
+      } catch (e) {
+        console.error("Config script error:", e);
       }
     </script>
 
     <script>
-      document.getElementById("btn").onclick = () => {
-        window.unisights.log("click_test", {
-          data: "button_clicked",
-        });
-      };
+      // Click handler — also no stray return
+      const btn = document.getElementById("btn");
+      if (btn) {
+        btn.onclick = () => {
+          if (window.unisights?.log) {
+            window.unisights.log("click_test", { data: "button_clicked" });
+          } else {
+            console.warn("unisights not available yet");
+          }
+        };
+      }
     </script>
   </body>
 </html>

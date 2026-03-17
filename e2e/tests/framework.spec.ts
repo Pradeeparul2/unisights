@@ -26,6 +26,7 @@ frameworks.forEach(({ name, port }) => {
       );
 
       // wait for SDK initialization
+      //@ts-ignore
       await page.waitForFunction(() => window.unisights !== undefined);
 
       // click event
