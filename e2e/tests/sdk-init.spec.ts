@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const endpoint = encodeURIComponent("http://localhost:3001/collect/event");
+const endpoint = encodeURIComponent("http://127.0.0.1:3001/collect/event");
 const PAGE_PATH = `/?endpoint=${endpoint}`;
 
 test.describe.serial("SDK Initialization", () => {
