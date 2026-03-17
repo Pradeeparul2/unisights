@@ -1,12 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-const frameworks = [
-  { name: "express", port: 3001 },
-  { name: "fastapi", port: 3002 },
-];
-
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { frameworks, UUID_REGEX } from "../helpers/constants";
 
 frameworks.forEach(({ name, port }) => {
   test.describe.serial(`${name} ingestion`, () => {
