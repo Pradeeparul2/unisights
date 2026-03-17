@@ -24,6 +24,11 @@ export default defineConfig({
       port: 3001,
       reuseExistingServer: true,
     },
+    {
+      command: "uvicorn frameworks.fastapi:app --port 3002",
+      port: 3002,
+      reuseExistingServer: true,
+    },
   ],
 
   projects: [
