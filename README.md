@@ -360,12 +360,12 @@ Drop this into your HTML `<head>` — no build tools required:
 <script
   src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
   data-insights-id="YOUR_INSIGHTS_ID"
+  data-endpoint="YOUR_ENDPOINT"
   async
 ></script>
 
 <script>
   window.unisights.init({
-    endpoint: "https://your-api.com/collect",
     encrypt: true, // optional encryption
   });
 </script>
