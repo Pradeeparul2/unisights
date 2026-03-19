@@ -95,19 +95,17 @@ The simplest way — no build tools required. Drop this into your HTML `<head>`:
 <script
   src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
   data-insights-id="YOUR_INSIGHTS_ID"
+  data-endpoint="YOUR_ENDPOINT"
   async
 ></script>
 ```
 
-With encryption enabled:
+### Script Tag Attributes
 
-```html
-<script
-  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
-  data-insights-id="YOUR_INSIGHTS_ID"
-  async
-></script>
-```
+| Attribute          | Required | Description                    |
+| ------------------ | -------- | ------------------------------ |
+| `data-insights-id` | ✅       | Your unique project identifier |
+| `data-endpoint`    | ✅       | Endpoint to receive events     |
 
 Pre-init queue — safe to call before the script loads:
 
@@ -305,14 +303,6 @@ const logFormSubmit = window.unisights.registerEvent("submit", (e) => e);
 // Later, inside your form submit handler:
 logFormSubmit("form_submit", { formId: "contact" });
 ```
-
----
-
-### Script Tag Attributes
-
-| Attribute          | Required | Description                    |
-| ------------------ | -------- | ------------------------------ |
-| `data-insights-id` | ✅       | Your unique project identifier |
 
 ---
 
