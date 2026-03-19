@@ -51,7 +51,6 @@ if (typeof window !== "undefined") {
   };
 }
 
-// At the bottom of your init.ts or index.ts
 (function autoInit() {
   const script =
     (document.currentScript as HTMLScriptElement | null) ??
