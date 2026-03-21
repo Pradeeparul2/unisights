@@ -2,17 +2,13 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-
   timeout: 30000,
-
   retries: 0,
-
   use: {
     headless: true,
     baseURL: "http://localhost:3000",
   },
 
-  /* serve the test HTML page */
   webServer: [
     {
       command: "npx serve ./pages -l 3000",
@@ -20,14 +16,16 @@ export default defineConfig({
       reuseExistingServer: true,
     },
     {
-      command: "node frameworks/express.ts",
+      command: "npm run servers:express",
       port: 3001,
       reuseExistingServer: true,
+      timeout: 120000,
     },
     {
-      command: "uvicorn frameworks.fastapi:app --port 3002",
+      command: "npm run servers:fastapi",
       port: 3002,
       reuseExistingServer: true,
+      timeout: 120000,
     },
   ],
 
