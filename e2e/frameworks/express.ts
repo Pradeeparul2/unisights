@@ -10,12 +10,10 @@ const corsOptions = {
 };
 
 const app = express();
-
 app.use(cors(corsOptions));
-
 app.use(express.json());
 
-const events: any[] = [];
+let events: any[] = [];
 
 app.use(
   unisights({
@@ -26,11 +24,15 @@ app.use(
   }),
 );
 
-/* test endpoint */
 app.get("/test/events", (req, res) => {
-  res.json(events[0] || null);
+  res.json(events[events.length - 1] || null);
+});
+
+app.get("/test/clear", (req, res) => {
+  events = [];
+  res.json({ cleared: true });
 });
 
 app.listen(3001, () => {
-  console.log("Express test server running on 3001");
+  console.log("✓ Express test server running on 3001");
 });

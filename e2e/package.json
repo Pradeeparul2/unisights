@@ -6,9 +6,14 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "tsx": "^4.8.1"
   },
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "servers:express": "tsx frameworks/express.ts",
+    "servers:fastapi": "uvicorn frameworks.fastapi:app --port 3002",
+    "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\""
   }
 }
