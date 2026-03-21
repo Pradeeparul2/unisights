@@ -9,16 +9,17 @@ frameworks.forEach(({ name, port }) => {
 
     const PAGE_PATH = `/?endpoint=${endpoint}`;
 
+    test.beforeEach(async ({ request }) => {
+      await request.get(`http://127.0.0.1:${port}/test/clear`);
+    });
+
     async function getPayload(page: any, request: any) {
       await page.goto(PAGE_PATH);
-
       await page.waitForFunction(() => window.unisights !== undefined);
-
       await page.evaluate(() => {
         window.unisights.flushNow();
       });
 
-      // Wait until backend receives payload
       await expect
         .poll(
           async () => {
