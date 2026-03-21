@@ -24,6 +24,10 @@ app.use(
   }),
 );
 
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 app.get("/test/events", (req, res) => {
   res.json(events[events.length - 1] || null);
 });

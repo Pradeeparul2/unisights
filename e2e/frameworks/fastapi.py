@@ -17,15 +17,25 @@ app.add_middleware(
 async def handle_event(payload: dict, request: Request):
     events.append(payload)
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+@app.get("/test/events")
+async def get_events():
+    return events[-1] if events else None
+
+@app.get("/test/clear")
+async def clear_events():
+    global events
+    events = []
+    return {"cleared": True}
+
 options = UnisightsOptions(
     path="/collect-fastapi/event",
     handler=handle_event,
     debug=True
 )
-
-@app.get("/test/events")
-async def get_events():
-    return events[-1] if events else None
 
 router = unisights_fastapi(options)
 app.include_router(router)
