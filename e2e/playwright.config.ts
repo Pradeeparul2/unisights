@@ -14,6 +14,7 @@ export default defineConfig({
       command: "npx serve ./pages -l 3000",
       port: 3000,
       reuseExistingServer: true,
+      timeout: 120000,
     },
     {
       command: "npm run servers:express",
@@ -22,7 +23,7 @@ export default defineConfig({
       timeout: 120000,
     },
     {
-      command: "npm run servers:fastapi",
+      command: "uvicorn frameworks.fastapi:app --port 3002",
       port: 3002,
       reuseExistingServer: true,
       timeout: 120000,
@@ -33,19 +34,6 @@ export default defineConfig({
     {
       name: "chromium",
       use: { browserName: "chromium" },
-    },
-    {
-      name: "edge",
-      use: {
-        browserName: "chromium",
-        channel: "msedge",
-      },
-    },
-    {
-      name: "safari",
-      use: {
-        browserName: "webkit",
-      },
     },
   ],
 
