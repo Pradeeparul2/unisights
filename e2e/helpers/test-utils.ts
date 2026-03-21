@@ -1,6 +1,12 @@
+import { Page, APIRequestContext } from "@playwright/test";
+
+export async function clearEvents(request: APIRequestContext, port: number) {
+  await request.get(`http://127.0.0.1:${port}/test/clear`);
+}
+
 export async function getPayload(
-  page: any,
-  request: any,
+  page: Page,
+  request: APIRequestContext,
   port: number,
   name: string,
 ) {
