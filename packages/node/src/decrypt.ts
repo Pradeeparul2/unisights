@@ -83,7 +83,12 @@ export async function decrypt(
 
   const text = new TextDecoder().decode(plaintext);
   try {
-    return JSON.parse(text) as UnisightsPayload;
+    const decryptedData = JSON.parse(text);
+    // Return nested structure matching Python backend
+    return {
+      data: decryptedData,
+      encrypted: true,
+    } as UnisightsPayload;
   } catch {
     throw new DecryptError("Decrypted payload is not valid JSON");
   }

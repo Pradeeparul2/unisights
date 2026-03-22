@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { frameworks, UUID_REGEX } from "../helpers/constants";
 
 frameworks.forEach(({ name, port }) => {
-  test.describe.serial(`${name} ingestion`, () => {
+  test.describe.serial(`${name} - Ingestion`, () => {
     const endpoint = encodeURIComponent(
       `http://127.0.0.1:${port}/collect-${name}/event`,
     );

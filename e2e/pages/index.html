@@ -7,38 +7,40 @@
     <button id="btn">Click</button>
 
     <script
-      async
-      data-insights-id="e2e-test"
       src="/dist/index.global.js"
+      data-insights-id="e2e-test"
       data-debug="true"
+      data-no-auto-init="true"
       id="unisights-script"
     ></script>
 
     <script>
-      // No return statements allowed here
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const endpoint = params.get("endpoint");
+      window.addEventListener("load", function () {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const endpoint = params.get("endpoint");
+          const encrypt = params.get("encrypt") === "true";
 
-        const scriptEl = document.getElementById("unisights-script");
-        if (scriptEl && endpoint) {
-          scriptEl.setAttribute("data-endpoint", endpoint);
-          console.log("Set data-endpoint to:", endpoint);
+          if (endpoint && window.unisights) {
+            window.unisights.init({
+              endpoint: decodeURIComponent(endpoint),
+              insightsId: "e2e-test",
+              debug: true,
+              encrypt: encrypt,
+            });
+          }
+        } catch (e) {
+          console.error("Init error:", e);
         }
-      } catch (e) {
-        console.error("Config script error:", e);
-      }
+      });
     </script>
 
     <script>
-      // Click handler — also no stray return
       const btn = document.getElementById("btn");
       if (btn) {
         btn.onclick = () => {
           if (window.unisights?.log) {
             window.unisights.log("click_test", { data: "button_clicked" });
-          } else {
-            console.warn("unisights not available yet");
           }
         };
       }

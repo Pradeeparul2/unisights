@@ -1,4 +1,4 @@
-import { init, getState, setPending } from "./init";
+import { init, autoInit, getState, setPending, checkInitialized } from "./init";
 import { touchSession } from "./session";
 import { sendAnalytics } from "./analytics";
 
@@ -10,8 +10,6 @@ export type {
   EventHandler,
 } from "./types";
 
-// ─── Browser bootstrap ────────────────────────────────────────────────────────
-
 if (typeof window !== "undefined") {
   window.unisightsq ??= [];
 
@@ -19,6 +17,10 @@ if (typeof window !== "undefined") {
     init,
 
     log: (name, data) => {
+      if (!checkInitialized()) {
+        console.error("[Insights] Not initialized. Call init() first.");
+        return;
+      }
       const { tracker } = getState();
       try {
         tracker.logCustomEvent(name, JSON.stringify(data));
@@ -30,11 +32,19 @@ if (typeof window !== "undefined") {
     },
 
     flushNow: () => {
+      if (!checkInitialized()) {
+        console.error("[Insights] Not initialized. Call init() first.");
+        return;
+      }
       const { tracker, config } = getState();
       sendAnalytics(tracker, config, true);
     },
 
     registerEvent: (eventType, handler) => {
+      if (!checkInitialized()) {
+        console.error("[Insights] Not initialized. Call init() first.");
+        return () => {};
+      }
       const { tracker, eventMap } = getState();
       const bound = typeof handler === "function" ? handler : () => {};
       window.addEventListener(eventType, bound);
@@ -49,20 +59,31 @@ if (typeof window !== "undefined") {
       };
     },
   };
+
+  // Auto-init if data-attributes present
+  (function () {
+    const script =
+      (document.currentScript as HTMLScriptElement | null) ??
+      document.querySelector<HTMLScriptElement>("script[data-insights-id]");
+
+    if (!script) return;
+
+    const noAutoInit = script.getAttribute("data-no-auto-init") === "true";
+
+    if (noAutoInit) {
+      if (script.getAttribute("data-debug") === "true") {
+        console.log("[Insights] Auto-init disabled. Call init() manually.");
+      }
+      return;
+    }
+
+    const endpoint = script.getAttribute("data-endpoint");
+    const insightsId = script.getAttribute("data-insights-id");
+
+    if (endpoint && insightsId) {
+      autoInit(script).catch((err) => {
+        console.error("[Insights] Auto-init failed:", err);
+      });
+    }
+  })();
 }
-
-(function autoInit() {
-  const script =
-    (document.currentScript as HTMLScriptElement | null) ??
-    document.querySelector<HTMLScriptElement>("script[data-insights-id]");
-
-  if (!script) return;
-
-  const endpoint = script.getAttribute("data-endpoint");
-  const insightsId = script.getAttribute("data-insights-id");
-  const debug = script.getAttribute("data-debug") === "true";
-
-  if (endpoint && insightsId) {
-    init({ endpoint, insightsId, debug });
-  }
-})();

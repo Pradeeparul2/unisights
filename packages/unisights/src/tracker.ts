@@ -15,10 +15,7 @@ export async function loadWasm(): Promise<void> {
 
 // ─── Tracker setup ────────────────────────────────────────────────────────────
 
-export function createTracker(
-  config: UnisightsConfig,
-  tag: Element,
-): wasm.Tracker {
+export function createTracker(config: UnisightsConfig): wasm.Tracker {
   const tracker = new wasm.Tracker();
   const sessionId = getOrCreateSession();
 

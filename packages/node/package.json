@@ -1,6 +1,6 @@
 {
   "name": "@pradeeparul2/unisights-node",
-  "version": "0.0.0-beta.2",
+  "version": "0.0.0-beta.3",
   "description": "Server package for unisights. Creates a configurable endpoint that receives events from the unisights client SDK. Processing is optional. Always returns 200.",
   "repository": {
     "type": "git",

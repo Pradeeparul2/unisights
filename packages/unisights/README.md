@@ -63,7 +63,31 @@ size for richer data collection and client-side security guarantees.
 
 ## Installation
 
-### npm / pnpm / yarn
+### CDN (Recommended)
+
+**The easiest way to get started** — no build tools, no npm, no configuration. Just drop this script tag into your HTML `<head>`:
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
+  data-insights-id="YOUR_SITE_ID"
+  data-endpoint="https://your-api.com/collect"
+  data-encrypt="true"
+  data-track-page-views="true"
+  data-track-clicks="true"
+  data-track-scroll="true"
+  data-track-errors="true"
+  data-track-rage-clicks="true"
+  data-track-engagement-time="true"
+  async
+></script>
+```
+
+That's it! The script auto-initializes and starts tracking immediately.
+
+### npm / pnpm / yarn (Advanced)
+
+For bundler-based apps (React, Vue, Next.js):
 
 ```bash
 # npm
@@ -76,62 +100,107 @@ pnpm add @pradeeparul2/unisights
 yarn add @pradeeparul2/unisights
 ```
 
-### Packages
-
-| Package                        | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| `@pradeeparul2/unisights`      | Main analytics library                        |
-| `@pradeeparul2/unisights-core` | Rust/WASM core (auto-installed as dependency) |
-
 ---
 
 ## Usage
 
-### CDN (Script Tag)
+### CDN (Auto-init) - Recommended
 
-The simplest way — no build tools required. Drop this into your HTML `<head>`:
+The script automatically initializes when it detects `data-insights-id` and `data-endpoint` attributes. All configuration is done via data attributes:
+
+#### Required Attributes
+
+| Attribute          | Description                 | Example                          |
+| ------------------ | --------------------------- | -------------------------------- |
+| `data-insights-id` | Your unique site identifier | `"my-blog"`                      |
+| `data-endpoint`    | Endpoint to receive events  | `"https://api.site.com/collect"` |
+
+#### Optional Attributes
+
+| Attribute                    | Default | Description                              |
+| ---------------------------- | ------- | ---------------------------------------- |
+| `data-encrypt`               | `false` | Enable client-side encryption            |
+| `data-debug`                 | `false` | Log events to console                    |
+| `data-track-page-views`      | `true`  | Track page views and SPA navigation      |
+| `data-track-clicks`          | `true`  | Track click coordinates                  |
+| `data-track-scroll`          | `true`  | Track scroll depth                       |
+| `data-track-errors`          | `true`  | Track JavaScript errors                  |
+| `data-track-rage-clicks`     | `true`  | Track rage click patterns                |
+| `data-track-dead-clicks`     | `false` | Track clicks on non-interactive elements |
+| `data-track-outbound-links`  | `false` | Track external link clicks               |
+| `data-track-file-downloads`  | `false` | Track file download clicks               |
+| `data-track-copy-paste`      | `false` | Track copy/paste events                  |
+| `data-track-engagement-time` | `true`  | Track actual time on page                |
+| `data-track-tab-focus`       | `false` | Track tab focus/blur events              |
+| `data-track-network-errors`  | `false` | Track failed network requests            |
+| `data-track-long-tasks`      | `false` | Track JS tasks blocking >50ms            |
+| `data-track-resource-timing` | `false` | Track slow resource loads                |
+| `data-flush-interval-ms`     | `15000` | Flush interval in milliseconds           |
+
+#### Complete Example
 
 ```html
 <script
   src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
-  data-insights-id="YOUR_INSIGHTS_ID"
-  data-endpoint="YOUR_ENDPOINT"
+  data-insights-id="my-blog"
+  data-endpoint="https://api.mysite.com/collect"
+  data-encrypt="true"
+  data-debug="false"
+  data-track-page-views="true"
+  data-track-clicks="true"
+  data-track-scroll="true"
+  data-track-errors="true"
+  data-track-rage-clicks="true"
+  data-track-engagement-time="true"
+  data-flush-interval-ms="10000"
   async
 ></script>
 ```
 
-### Script Tag Attributes
+#### Disable Auto-init (Manual Mode)
 
-| Attribute          | Required | Description                    |
-| ------------------ | -------- | ------------------------------ |
-| `data-insights-id` | ✅       | Your unique project identifier |
-| `data-endpoint`    | ✅       | Endpoint to receive events     |
-
-Pre-init queue — safe to call before the script loads:
+If you need manual control (e.g., GDPR consent, conditional init):
 
 ```html
+<script
+  src="https://cdn.jsdelivr.net/npm/@pradeeparul2/unisights/dist/index.global.js"
+  data-no-auto-init="true"
+></script>
+
 <script>
-  window.unisightsq = window.unisightsq || [];
-  window.unisightsq.push(() => {
-    window.unisights.log("app_loaded", { version: "1.0.0" });
-  });
+  // Initialize manually after user consent
+  if (userGaveConsent) {
+    window.unisights.init({
+      endpoint: "https://api.mysite.com/collect",
+      insightsId: "my-blog",
+      encrypt: true,
+      trackPageViews: true,
+      trackClicks: true,
+    });
+  }
 </script>
 ```
 
 ---
 
-### npm (ESM)
+### npm (Manual Init)
+
+For React, Vue, Next.js, or any bundler-based setup:
 
 ```ts
 import { init } from "@pradeeparul2/unisights";
 
 await init({
   endpoint: "https://your-api.com/events",
+  insightsId: "your-site-id",
   debug: true,
+  encrypt: true,
   trackPageViews: true,
   trackClicks: true,
   trackScroll: true,
   trackErrors: true,
+  trackRageClicks: true,
+  trackEngagementTime: true,
 });
 ```
 
@@ -150,6 +219,7 @@ export async function initAnalytics() {
   initialized = true;
   await init({
     endpoint: process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT!,
+    insightsId: "my-app",
     trackPageViews: true,
     trackClicks: true,
     trackRageClicks: true,
@@ -193,6 +263,7 @@ export default function RootLayout({
   useEffect(() => {
     init({
       endpoint: process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT!,
+      insightsId: "my-nextjs-app",
       trackPageViews: true,
       trackClicks: true,
       trackScroll: true,
@@ -228,40 +299,24 @@ module.exports = nextConfig;
 
 ## API Reference
 
-### `init(config?)`
+### `window.unisights.init(config)`
 
-Initializes the tracker. Must be called once. Subsequent calls are no-ops.
+Manually initialize the tracker. Required only if using `data-no-auto-init="true"` or npm install.
 
 ```ts
-await init({
-  endpoint: "https://your-api.com/events", // required — where payloads are sent
-  debug: false, // logs events to console
-  encrypt: false, // enables rolling key encryption
-  flushIntervalMs: 15000, // how often to flush (ms)
-
-  // Page
-  trackPageViews: true, // entry page + page views + SPA navigation
-
-  // Interactions
-  trackClicks: true, // x/y coordinates of every click
-  trackScroll: true, // scroll depth percentage
-  trackRageClicks: true, // 3+ rapid clicks in same area
-  trackDeadClicks: true, // clicks on non-interactive elements
-  trackOutboundLinks: true, // clicks on external links
-  trackFileDownloads: true, // clicks on pdf/zip/docx/xlsx etc
-  trackCopyPaste: false, // copy and paste events
-
-  // Errors
-  trackErrors: true, // window.onerror + unhandledrejection
-
-  // Engagement
-  trackEngagementTime: true, // actual active time on page
-  trackTabFocus: true, // tab focus / blur events
-
-  // Performance (opt-in)
-  trackNetworkErrors: false, // failed fetch requests
-  trackLongTasks: false, // JS tasks blocking >50ms
-  trackResourceTiming: false, // resources taking >1s to load
+await window.unisights.init({
+  endpoint: "https://your-api.com/events", // required
+  insightsId: "your-site-id", // required
+  debug: false,
+  encrypt: false,
+  flushIntervalMs: 15000,
+  trackPageViews: true,
+  trackClicks: true,
+  trackScroll: true,
+  trackRageClicks: true,
+  trackErrors: true,
+  trackEngagementTime: true,
+  // ... all other options from data attributes
 });
 ```
 
@@ -269,7 +324,7 @@ await init({
 
 ### `window.unisights.log(name, data)`
 
-Log a custom event at any time after `init()`.
+Log a custom event at any time after initialization.
 
 ```ts
 window.unisights.log("purchase", {
@@ -380,7 +435,7 @@ Unisights sends JSON to your endpoint via `navigator.sendBeacon`. All field name
 
 ### Encrypted
 
-When `encrypt: true` is set, the analytics payload is encrypted using a **stateless rolling key** before sending. The envelope contains everything your server needs to verify and decrypt — no server-side session state required.
+When `data-encrypt="true"` or `encrypt: true` is set, the analytics payload is encrypted using a **stateless rolling key** before sending. The envelope contains everything your server needs to verify and decrypt — no server-side session state required.
 
 ```json
 {
@@ -392,6 +447,8 @@ When `encrypt: true` is set, the analytics payload is encrypted using a **statel
   "encrypted": true
 }
 ```
+
+After decryption, your handler receives the standard payload structure with `encrypted: true` flag preserved.
 
 ---
 
@@ -419,7 +476,7 @@ server_key = HMAC(SERVER_SECRET, client_key)
 ### Server-side decryption (Python)
 
 ```python
-import hashlib, hmac as hmac_lib, base64
+import hashlib, hmac as hmac_lib, base64, json
 
 def decrypt_payload(payload: dict) -> dict:
     ciphertext = base64.b64decode(payload["data"])
@@ -449,7 +506,10 @@ def decrypt_payload(payload: dict) -> dict:
         chunk += 1
 
     plaintext = bytes(c ^ k for c, k in zip(ciphertext, keystream))
-    return json.loads(plaintext)
+    decrypted_data = json.loads(plaintext)
+
+    # Return with encrypted flag preserved
+    return {"data": decrypted_data, "encrypted": True}
 ```
 
 ### Server-side decryption (Rust)
@@ -468,6 +528,22 @@ match decrypt(&ciphertext, &tag, bucket, &site_id, &ua_hash) {
     }
 }
 ```
+
+---
+
+## Why CDN Script Tag is Recommended
+
+1. **Zero Configuration** - Works out of the box, no build tools needed
+2. **Non-Technical Friendly** - Marketing teams can install without developer help
+3. **Fewer Integration Bugs** - No manual init code to write
+4. **Faster Deployment** - Copy-paste solution for 95% of use cases
+5. **Industry Standard** - Same pattern as Google Analytics, Plausible, Mixpanel
+
+Use manual npm install only for:
+
+- Complex GDPR consent flows requiring conditional initialization
+- A/B testing different tracking configurations
+- Framework-specific integrations (React hooks, Vue plugins)
 
 ---
 

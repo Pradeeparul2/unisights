@@ -1,6 +1,6 @@
 [project]
 name = "unisights"
-version = "0.0.1-beta.15"
+version = "0.0.1-beta.16"
 authors = [
   { name="Pradeep Arul", email="pradeeparul2@gmail.com" },
 ]

@@ -3,7 +3,7 @@ import { frameworks } from "../helpers/constants";
 import { clearEvents } from "../helpers/test-utils";
 
 frameworks.forEach(({ name, port }) => {
-  test.describe.serial(`SDK Initialization - ${name}`, () => {
+  test.describe.serial(`${name} - SDK Initialization`, () => {
     const endpoint = encodeURIComponent(
       `http://127.0.0.1:${port}/collect-${name}/event`,
     );
@@ -62,27 +62,19 @@ frameworks.forEach(({ name, port }) => {
     });
 
     test("SDK reads configuration from script attributes", async ({ page }) => {
-      await page.goto(PAGE_PATH, { waitUntil: "networkidle" });
-      await page.waitForFunction(
-        () => {
-          const el = document.getElementById("unisights-script");
-          return (
-            el?.getAttribute("data-endpoint")?.includes("collect") ?? false
-          );
-        },
-        { timeout: 15000 },
-      );
+      await page.goto(PAGE_PATH);
+      await page.waitForFunction(() => window.unisights !== undefined);
 
       const config = await page.evaluate(() => {
         const tag = document.getElementById("unisights-script");
         return {
           insightsId: tag?.getAttribute("data-insights-id"),
-          endpoint: tag?.getAttribute("data-endpoint"),
+          noAutoInit: tag?.getAttribute("data-no-auto-init"),
         };
       });
 
       expect(config.insightsId).toBe("e2e-test");
-      expect(config.endpoint).toContain("collect");
+      expect(config.noAutoInit).toBe("true");
     });
 
     test("SDK does not throw runtime errors during initialization", async ({
