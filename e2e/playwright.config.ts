@@ -40,6 +40,12 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120000,
     },
+    {
+      command: "npm run servers:nestjs",
+      port: 3005,
+      reuseExistingServer: true,
+      timeout: 120000,
+    },
   ],
 
   projects: [
