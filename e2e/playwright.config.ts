@@ -34,6 +34,12 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120000,
     },
+    {
+      command: "npm run servers:fastify",
+      port: 3004,
+      reuseExistingServer: true,
+      timeout: 120000,
+    },
   ],
 
   projects: [

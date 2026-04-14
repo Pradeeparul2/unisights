@@ -2,11 +2,13 @@
   "name": "unisights-e2e",
   "private": true,
   "devDependencies": {
+    "@fastify/cors": "^9.0.1",
     "@playwright/test": "^1.44.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "fastify": "^4.28.1",
     "tsx": "^4.8.1"
   },
   "scripts": {
@@ -14,8 +16,9 @@
     "test:debug": "playwright test --debug",
     "servers:express": "tsx frameworks/express.ts",
     "servers:fastapi": "python -m uvicorn frameworks.fastapi:app --port 3002",
+    "servers:fastify": "tsx frameworks/fastify.ts",
     "servers:flask": "python -m flask --app frameworks.flask_app run --port 3003",
     "python:setup": "python -m pip install -r requirements.txt && python -m pip install -e ../packages/python",
-    "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\" \"npm run servers:flask\""
+    "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\" \"npm run servers:flask\" \"npm run servers:fastify\""
   }
 }
