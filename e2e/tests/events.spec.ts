@@ -1,12 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { frameworks } from "../helpers/constants";
+import { frameworks } from "../helpers/global-setup";
 
-const getFramework = () => {
-  const frameworkName = process.env.FRAMEWORK_NAME || "express"; // fallback for when env var not set
-  return frameworks.find((f) => f.name === frameworkName)!;
-};
+const frameworkName = process.env.FRAMEWORK_NAME!;
+const framework = frameworks[frameworkName as keyof typeof frameworks];
 
-const { name, port } = getFramework();
+const { namespace: name, port } = framework;
 
 test.describe.serial(`${name} - Events`, () => {
   const endpoint = encodeURIComponent(

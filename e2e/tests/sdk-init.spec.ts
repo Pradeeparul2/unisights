@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { frameworks } from "../helpers/constants";
 import { clearEvents } from "../helpers/test-utils";
+import { frameworks } from "../helpers/global-setup";
 
 const frameworkName = process.env.FRAMEWORK_NAME!;
-const framework = frameworks.find((f) => f.name === frameworkName)!;
-const { name, port } = framework;
+const framework = frameworks[frameworkName as keyof typeof frameworks];
+const { namespace: name, port } = framework;
 
 test.describe.serial(`${name} - SDK Initialization`, () => {
   const endpoint = encodeURIComponent(

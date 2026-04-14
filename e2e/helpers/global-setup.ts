@@ -1,25 +1,36 @@
 import { spawn } from "child_process";
+import { waitForServer } from "./server-health";
 
 export const frameworks = {
   express: {
     port: 3001,
     command: "npm run servers:express",
+    namespace: "express",
   },
   fastapi: {
     port: 3002,
     command: "python -m uvicorn frameworks.fastapi:app --port 3002",
+    namespace: "fastapi",
   },
   flask: {
     port: 3003,
     command: "python -m flask --app frameworks.flask_app run --port 3003",
+    namespace: "flask",
   },
   fastify: {
     port: 3004,
     command: "npm run servers:fastify",
+    namespace: "fastify",
+  },
+  koa: {
+    port: 3006,
+    command: "npm run servers:koa",
+    namespace: "koa",
   },
   nestjs: {
     port: 3005,
     command: "npm run servers:nestjs",
+    namespace: "nestjs",
   },
 };
 
@@ -28,13 +39,19 @@ export default async () => {
 
   if (!framework || !frameworks[framework]) return;
 
-  const { command } = frameworks[framework];
+  const { command, port } = frameworks[framework];
 
   spawn(command, {
     shell: true,
     stdio: "inherit",
   });
 
-  // wait for server (simple delay or use wait-on)
-  await new Promise((res) => setTimeout(res, 5000));
+  // Wait for server to be ready with health check
+  try {
+    await waitForServer(port, 60, 500); // 60 attempts, 500ms between each = 30 seconds max
+    console.log(`✓ Framework server on port ${port} started successfully`);
+  } catch (error) {
+    console.error(`✗ Failed to start framework server on port ${port}:`, error);
+    throw error;
+  }
 };

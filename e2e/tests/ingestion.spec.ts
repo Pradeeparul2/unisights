@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, UUID_REGEX } from "../helpers/constants";
+import { UUID_REGEX } from "../helpers/constants";
+import { frameworks } from "../helpers/global-setup";
 
 const frameworkName = process.env.FRAMEWORK_NAME!;
-const framework = frameworks.find((f) => f.name === frameworkName)!;
-const { name, port } = framework;
+const framework = frameworks[frameworkName as keyof typeof frameworks];
+const { namespace: name, port } = framework;
 
 test.describe.serial(`${name} - Ingestion`, () => {
   const endpoint = encodeURIComponent(
@@ -31,7 +32,7 @@ test.describe.serial(`${name} - Ingestion`, () => {
           const data = await res.json();
           return data;
         },
-        { timeout: 10000 },
+        { timeout: 10000, intervals: [100, 200, 500] },
       )
       .toBeDefined();
 
