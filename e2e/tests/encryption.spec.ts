@@ -41,7 +41,7 @@ frameworks.forEach(({ name, port }) => {
           },
           { timeout: 10000 },
         )
-        .toBeDefined();
+        .not.toBeNull();
 
       const res = await request.get(`http://127.0.0.1:${port}/test/events`);
       const response = await res.json();
