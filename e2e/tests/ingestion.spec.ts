@@ -16,6 +16,7 @@ frameworks.forEach(({ name, port }) => {
     async function getPayload(page: any, request: any) {
       await page.goto(PAGE_PATH);
       await page.waitForFunction(() => window.unisights !== undefined);
+      await page.waitForTimeout(300); // Wait for the library to initialize and send
       await page.evaluate(() => {
         window.unisights.flushNow();
       });

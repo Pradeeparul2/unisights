@@ -98,24 +98,15 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
         worker_thread.start()
 
     @bp.route(options.path, methods=["POST", "OPTIONS"])
-    def collect_events() -> tuple[dict | Response, int, dict]:
+    def collect_events():
         """Collect and process analytics events.
 
         Returns:
-            JSON response with status code and headers
-
-        Response Status Codes:
-            200 - Event processed successfully
-            202 - Event queued for processing
-            400 - Invalid JSON
-            413 - Payload too large
-            415 - Wrong content type
-            422 - Validation error
-            500 - Processing error
+            JSON response with status code
         """
-        # Handle CORS preflight
+        # Let flask-cors handle OPTIONS preflight at app level
         if request.method == "OPTIONS":
-            return _cors_response(), 204, {}
+            return {"status": "ok"}, 204
 
         try:
             # Validate content-type
@@ -123,14 +114,14 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
             if content_type and content_type != "application/json":
                 return {
                     "error": "Content-Type must be application/json"
-                }, 415, _cors_headers()
+                }, 415
 
             # Check content length
             content_length = request.content_length
             if content_length and content_length > options.max_payload_size:
                 return {
                     "error": f"Payload exceeds {options.max_payload_size} bytes"
-                }, 413, _cors_headers()
+                }, 413
 
             # Read and parse request body
             try:
@@ -138,19 +129,19 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
                 if not body:
                     return {
                         "error": "Empty request body"
-                    }, 400, _cors_headers()
+                    }, 400
             except Exception as e:
                 logger.error(f"Error reading request body: {e}")
                 return {
                     "error": "Error reading request body"
-                }, 400, _cors_headers()
+                }, 400
 
             # Validate JSON
             valid_json, payload_dict, json_error = validate_json_payload(body)
             if not valid_json:
                 return {
                     "error": json_error or "Invalid JSON"
-                }, 400, _cors_headers()
+                }, 400
 
             # Validate payload schema
             try:
@@ -162,7 +153,7 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
                     detail = "Invalid event payload"
                 return {
                     "error": detail
-                }, 422, _cors_headers()
+                }, 422
 
             # Process event
             try:
@@ -181,7 +172,7 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
                     return {
                         "status": "queued",
                         "session_id": payload.data.session_id
-                    }, 202, _cors_headers()
+                    }, 202
                 else:
                     # Direct processing (sync handler or no handler)
                     asyncio.run(collector.process(payload, request))
@@ -197,41 +188,25 @@ def unisights_flask(options: Optional[UnisightsOptions] = None) -> Blueprint:
                     return {
                         "status": "received",
                         "session_id": payload.data.session_id
-                    }, 200, _cors_headers()
+                    }, 200
 
             except Exception as e:
                 logger.error(f"Handler error: {e}", exc_info=True)
                 if options.debug:
                     return {
                         "error": f"Processing error: {str(e)}"
-                    }, 500, _cors_headers()
+                    }, 500
                 else:
                     # Silently accept
                     return {
                         "status": "accepted",
                         "session_id": payload.data.session_id
-                    }, 202, _cors_headers()
+                    }, 202
 
         except Exception as e:
             logger.error(f"Unexpected error: {e}", exc_info=True)
             return {
                 "error": "Internal server error" if not options.debug else str(e)
-            }, 500, _cors_headers()
-
-    def _cors_response() -> Response:
-        """Create CORS preflight response."""
-        resp = Response()
-        resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        resp.headers["Access-Control-Max-Age"] = "86400"
-        return resp
-
-    def _cors_headers() -> dict:
-        """Get CORS headers for response."""
-        return {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS"
-        }
+            }, 500
 
     return bp

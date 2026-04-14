@@ -23,8 +23,14 @@ export default defineConfig({
       timeout: 120000,
     },
     {
-      command: "uvicorn frameworks.fastapi:app --port 3002",
+      command: "python -m uvicorn frameworks.fastapi:app --port 3002",
       port: 3002,
+      reuseExistingServer: true,
+      timeout: 120000,
+    },
+    {
+      command: "python -m flask --app frameworks.flask_app run --port 3003",
+      port: 3003,
       reuseExistingServer: true,
       timeout: 120000,
     },

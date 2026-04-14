@@ -13,7 +13,9 @@
     "test": "playwright test",
     "test:debug": "playwright test --debug",
     "servers:express": "tsx frameworks/express.ts",
-    "servers:fastapi": "uvicorn frameworks.fastapi:app --port 3002",
-    "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\""
+    "servers:fastapi": "python -m uvicorn frameworks.fastapi:app --port 3002",
+    "servers:flask": "python -m flask --app frameworks.flask_app run --port 3003",
+    "python:setup": "python -m pip install -r requirements.txt && python -m pip install -e ../packages/python",
+    "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\" \"npm run servers:flask\""
   }
 }
