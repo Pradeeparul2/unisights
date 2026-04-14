@@ -1,7 +1,12 @@
 import { defineConfig } from "@playwright/test";
+import { frameworks } from "./helpers/global-setup";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default defineConfig({
   testDir: "./tests",
+  globalSetup: "./helpers/global-setup.ts",
   timeout: 30000,
   retries: 0,
   use: {
@@ -16,44 +21,16 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120000,
     },
-    {
-      command: "npm run servers:express",
-      port: 3001,
-      reuseExistingServer: true,
-      timeout: 120000,
-    },
-    {
-      command: "python -m uvicorn frameworks.fastapi:app --port 3002",
-      port: 3002,
-      reuseExistingServer: true,
-      timeout: 120000,
-    },
-    {
-      command: "python -m flask --app frameworks.flask_app run --port 3003",
-      port: 3003,
-      reuseExistingServer: true,
-      timeout: 120000,
-    },
-    {
-      command: "npm run servers:fastify",
-      port: 3004,
-      reuseExistingServer: true,
-      timeout: 120000,
-    },
-    {
-      command: "npm run servers:nestjs",
-      port: 3005,
-      reuseExistingServer: true,
-      timeout: 120000,
-    },
   ],
 
-  projects: [
-    {
-      name: "chromium",
-      use: { browserName: "chromium" },
+  projects: Object.entries(frameworks).map(([name, config]) => ({
+    name: `${name}-chromium`,
+    use: {
+      browserName: "chromium",
+      FRAMEWORK_NAME: name,
+      FRAMEWORK_PORT: config.port.toString(),
     },
-  ],
+  })),
 
   reporter: [["list"]],
 });
