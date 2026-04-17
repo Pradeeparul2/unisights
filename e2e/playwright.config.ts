@@ -7,6 +7,7 @@ dotenv.config();
 export default defineConfig({
   testDir: "./tests",
   globalSetup: "./helpers/global-setup.ts",
+  globalTeardown: "./helpers/global-teardown.ts",
   timeout: 30000,
   retries: 0,
   use: {

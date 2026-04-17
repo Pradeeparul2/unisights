@@ -17,9 +17,8 @@ test.describe.serial(`${name} - Encryption`, () => {
     await page.goto(`/?endpoint=${endpoint}&encrypt=true`);
 
     await page.waitForFunction(() => window.unisights !== undefined, {
-      timeout: 5000,
+      timeout: 1000,
     });
-
     await page.waitForTimeout(500);
 
     const initialized = await page.evaluate(() => {

@@ -28,7 +28,6 @@ from functools import wraps
 from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.middleware.cors import CorsMiddleware
 
 from .types import UnisightsPayload, UnisightsOptions
 from .validator import UnisightsValidator, ValidationError
@@ -74,10 +73,7 @@ def unisights_django(options: Optional[UnisightsOptions] = None) -> Callable:
     if options is None:
         options = UnisightsOptions()
 
-    collector = Unisights(
-        handler=options.handler,
-        debug=options.debug
-    )
+    collector = Unisights(handler=options.handler)
     validator = UnisightsValidator(
         validate_schema=options.validate_schema,
         validate_required_fields=options.validate_required_fields,
@@ -334,10 +330,7 @@ async def unisights_django_async(options: Optional[UnisightsOptions] = None) -> 
     if options is None:
         options = UnisightsOptions()
 
-    collector = Unisights(
-        handler=options.handler,
-        debug=options.debug
-    )
+    collector = Unisights(handler=options.handler)
     validator = UnisightsValidator(
         validate_schema=options.validate_schema,
         validate_required_fields=options.validate_required_fields,

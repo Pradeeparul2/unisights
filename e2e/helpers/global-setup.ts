@@ -17,6 +17,11 @@ export const frameworks = {
     command: "python -m flask --app frameworks.flask_app run --port 3003",
     namespace: "flask",
   },
+  django: {
+    port: 3007,
+    command: "python -m uvicorn frameworks.django_app:asgi_app --port 3007",
+    namespace: "django",
+  },
   fastify: {
     port: 3004,
     command: "npm run servers:fastify",
