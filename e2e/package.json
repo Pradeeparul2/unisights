@@ -26,6 +26,13 @@
   "scripts": {
     "test": "playwright test",
     "test:debug": "playwright test --debug",
+    "test:express": "playwright test --project=express",
+    "test:fastapi": "playwright test --project=fastapi",
+    "test:fastify": "playwright test --project=fastify",
+    "test:flask": "playwright test --project=flask",
+    "test:koa": "playwright test --project=koa",
+    "test:nestjs": "playwright test --project=nestjs",
+    "test:django": "playwright test --project=django",
     "servers:express": "tsx frameworks/express.ts",
     "servers:fastapi": "python -m uvicorn frameworks.fastapi:app --port 3002",
     "servers:fastify": "tsx frameworks/fastify.ts",

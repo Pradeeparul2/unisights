@@ -24,14 +24,38 @@ export default defineConfig({
     },
   ],
 
-  projects: Object.entries(frameworks).map(([name, config]) => ({
-    name: `${name}-chromium`,
-    use: {
-      browserName: "chromium",
-      FRAMEWORK_NAME: name,
-      FRAMEWORK_PORT: config.port.toString(),
+  projects: Object.entries(frameworks).flatMap(([name, config]) => [
+    {
+      name: `${name}-chromium`,
+      use: {
+        browserName: "chromium",
+        FRAMEWORK_NAME: name,
+        FRAMEWORK_PORT: config.port.toString(),
+      },
     },
-  })),
+    {
+      name: `${name}-safari`,
+      use: {
+        browserName: "webkit",
+        FRAMEWORK_NAME: name,
+        FRAMEWORK_PORT: config.port.toString(),
+      },
+    },
+    {
+      name: `${name}-edge`,
+      use: {
+        browserName: "chromium",
+        channel: "msedge",
+        FRAMEWORK_NAME: name,
+        FRAMEWORK_PORT: config.port.toString(),
+      },
+    },
+    {
+      name,
+      dependencies: [`${name}-chromium`, `${name}-safari`, `${name}-edge`],
+      testMatch: /^$/,
+    },
+  ]),
 
   reporter: [["list"]],
 });
