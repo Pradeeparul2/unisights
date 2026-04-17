@@ -32,7 +32,8 @@
     "servers:flask": "python -m flask --app frameworks.flask_app run --port 3003",
     "servers:koa": "tsx frameworks/koa.ts",
     "servers:nestjs": "tsx frameworks/nestjs.ts",
-    "python:setup": "python -m pip install -r requirements.txt && python -m pip install -e ../packages/python",
+    "servers:django": "python -m uvicorn frameworks.django_app:asgi_app --port 3007",
+    "python:setup": "uv pip install -r requirements.txt && uv pip install -e ../packages/python",
     "servers": "concurrently \"npm run servers:express\" \"npm run servers:fastapi\" \"npm run servers:flask\" \"npm run servers:fastify\" \"npm run servers:koa\" \"npm run servers:nestjs\""
   },
   "dependencies": {
